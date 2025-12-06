@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登入 - TCRS</title>
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="/css/background.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+
+  <div class="auth-container">
+    <div class="auth-card">
+      <!-- 左側 - 歡迎區域 -->
+      <div class="auth-welcome">
+        <div class="welcome-content">
+          <i class='bx bx-shield-alt-2'></i>
+          <h2>歡迎回來!</h2>
+          <p>登入您的帳戶以存取完整功能</p>
+          <div class="welcome-features">
+            <div class="feature-item">
+              <i class='bx bx-check-circle'></i>
+              <span>追蹤個人戰績</span>
+            </div>
+            <div class="feature-item">
+              <i class='bx bx-check-circle'></i>
+              <span>參與排名競賽</span>
+            </div>
+            <div class="feature-item">
+              <i class='bx bx-check-circle'></i>
+              <span>獲取數據分析</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右側 - 登入表單 -->
+      <div class="auth-form-container">
+        <div class="auth-header">
+          <h1>會員登入</h1>
+          <p>還沒有帳號? <a href="/users/sign_up">立即註冊</a></p>
+        </div>
+
+        <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-error">
+          <i class='bx bx-error-circle'></i>
+          <span><%= error %></span>
+        </div>
+        <% } %>
+
+        <form action="/users/sign_in" method="POST" class="auth-form" id="signInForm">
+          <!-- Email -->
+          <div class="form-group">
+            <label for="email">
+              <i class='bx bx-envelope'></i>
+              電子郵件
+            </label>
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              placeholder="username@example.com"
+              required
+              autocomplete="email"
+            >
+            <span class="error-message" id="emailError"></span>
+          </div>
+
+          <!-- Password -->
+          <div class="form-group">
+            <label for="password">
+              <i class='bx bx-lock-alt'></i>
+              密碼
+            </label>
+            <div class="password-input-wrapper">
+              <input 
+                type="password" 
+                id="password" 
+                name="password" 
+                placeholder=""
+                required
+                autocomplete="current-password"
+              >
+              <button type="button" class="toggle-password" onclick="togglePassword()">
+                <i class='bx bx-show' id="toggleIcon"></i>
+              </button>
+            </div>
+            <span class="error-message" id="passwordError"></span>
+          </div>
+
+          <!-- Remember Me & Forgot Password -->
+          <div class="form-options">
+            <label class="checkbox-label">
+              <input type="checkbox" name="remember" id="remember">
+              <span>記住我</span>
+            </label>
+            <a href="/users/forgot-password" class="forgot-link">忘記密碼?</a>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn-submit" id="submitBtn">
+            <span class="btn-text">登入</span>
+            <div class="btn-loader" style="display: none;">
+              <div class="spinner"></div>
+            </div>
+          </button>
+        </form>
+
+        <!-- 社群登入 -->
+        <div class="social-login">
+          <div class="divider">
+            <span>或使用以下方式登入</span>
+          </div>
+          <div class="social-buttons">
+            <button class="social-btn google" onclick="alert('Google 登入功能開發中')">
+              <i class='bx bxl-google'></i>
+              Google
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 背景動畫 -->
+  <div class="area">
+    <ul class="circles">
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+  </div>
+
+  <script>
+    // 密碼顯示/隱藏切換
+    function togglePassword() {
+      const passwordInput = document.getElementById('password');
+      const toggleIcon = document.getElementById('toggleIcon');
+      
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('bx-show');
+        toggleIcon.classList.add('bx-hide');
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('bx-hide');
+        toggleIcon.classList.add('bx-show');
+      }
+    }
+
+    // 表單驗證
+    document.getElementById('signInForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      let isValid = true;
+      
+      // 清除之前的錯誤
+      document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+      document.querySelectorAll('.form-group').forEach(el => el.classList.remove('error'));
+      
+      // Email 驗證
+      const email = document.getElementById('email');
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email.value) {
+        showError('email', '請輸入電子郵件');
+        isValid = false;
+      } else if (!emailRegex.test(email.value)) {
+        showError('email', '請輸入有效的電子郵件格式');
+        isValid = false;
+      }
+      
+      // Password 驗證
+      const password = document.getElementById('password');
+      if (!password.value) {
+        showError('password', '請輸入密碼');
+        isValid = false;
+      } else if (password.value.length < 6) {
+        showError('password', '密碼長度至少需要 6 個字元');
+        isValid = false;
+      }
+      
+      if (!isValid) {
+        return false;
+      }
+      
+      // 顯示載入動畫
+      const submitBtn = document.getElementById('submitBtn');
+      const btnText = submitBtn.querySelector('.btn-text');
+      const btnLoader = submitBtn.querySelector('.btn-loader');
+      
+      btnText.style.display = 'none';
+      btnLoader.style.display = 'block';
+      submitBtn.disabled = true;
+
+      try {
+        // 發送 AJAX 請求
+        const response = await fetch('/users/sign_in', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email.value,
+            password: password.value
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+          // 保存記住的帳號
+          const rememberCheckbox = document.getElementById('remember');
+          if (rememberCheckbox.checked) {
+            localStorage.setItem('rememberedEmail', email.value);
+          } else {
+            localStorage.removeItem('rememberedEmail');
+          }
+          
+          // 重定向到首頁
+          window.location.href = data.redirect || '/';
+        } else {
+          // 顯示錯誤訊息
+          showError('password', data.message || '登入失敗');
+          btnText.style.display = 'block';
+          btnLoader.style.display = 'none';
+          submitBtn.disabled = false;
+        }
+      } catch (error) {
+        showError('password', '網路錯誤，請稍後再試');
+        btnText.style.display = 'block';
+        btnLoader.style.display = 'none';
+        submitBtn.disabled = false;
+      }
+    });
+    
+    function showError(fieldId, message) {
+      const errorElement = document.getElementById(fieldId + 'Error');
+      const formGroup = document.getElementById(fieldId).closest('.form-group');
+      
+      errorElement.textContent = message;
+      formGroup.classList.add('error');
+    }
+
+    // 自動填入記住的帳號
+    window.addEventListener('DOMContentLoaded', () => {
+      const rememberedEmail = localStorage.getItem('rememberedEmail');
+      if (rememberedEmail) {
+        document.getElementById('email').value = rememberedEmail;
+        document.getElementById('remember').checked = true;
+      }
+    });
+  </script>
+</body>
+
+</html>
