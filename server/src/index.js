@@ -3,13 +3,15 @@ var cors = require('cors');
 var morgan = require('morgan');
 var dotenv = require('dotenv');
 var path = require('path');
+var cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 
-
+var usersRouter = require('./routes/users');
 var playersRouter = require('./routes/players');
 const pageViewCounter = require('./middleware/pageViewCounter');
 const PageView = require('./models/PageView');
 const DailyStats = require('./models/DailyStats');
+const { isAuth, optionalAuth } = require('./middleware/auth');
 
 dotenv.config({ path: './config.env' });
 const app = express();
@@ -38,6 +40,8 @@ app.set('view engine', 'ejs'); // 設置 EJS 為視圖引擎
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(morgan('dev'));
 
 // 頁面訪問計數中間件
@@ -61,24 +65,27 @@ mongoose.connect(DB)
 
 
 app.use('/players', playersRouter);
+app.use('/users', usersRouter);
 
 
 
 
 // EJS 範例路由
-app.get('/', (req, res) => {
+app.get('/', optionalAuth, (req, res) => {
   res.render('index', {
     title: 'TCRS Server',
-    message: '這是測試首頁!'
+    message: '這是測試首頁!',
+    user: req.user
   });
-});
+}
+);
 app.get('/joinus', (req, res) => {
   res.render('joinus', {
     title: 'TCRS Server',
     message: '這是測試首頁!'
   });
 });
-    
+
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
@@ -89,7 +96,7 @@ app.get('/api/stats', async (req, res) => {
   try {
     const stats = await PageView.find().sort({ count: -1 });
     const totalViews = stats.reduce((sum, page) => sum + page.count, 0);
-    
+
     res.json({
       totalViews,
       pages: stats,
@@ -106,11 +113,11 @@ app.get('/api/stats/:path(*)', async (req, res) => {
   try {
     const path = '/' + req.params.path;
     const pageView = await PageView.findOne({ path });
-    
+
     if (!pageView) {
       return res.json({ path, count: 0, message: '此頁面尚無訪問記錄' });
     }
-    
+
     res.json(pageView);
   } catch (error) {
     console.error('獲取頁面統計失敗:', error);
@@ -122,15 +129,15 @@ app.get('/api/stats/:path(*)', async (req, res) => {
 app.get('/api/daily-stats', async (req, res) => {
   try {
     const { days = 30 } = req.query;
-    
+
     // 獲取最近 N 天的統計
     const stats = await DailyStats.find()
       .sort({ date: -1 })
       .limit(parseInt(days));
-    
+
     // 反轉順序使日期從舊到新
     stats.reverse();
-    
+
     res.json({
       stats: stats,
       days: stats.length
@@ -175,7 +182,7 @@ const resErrorProd = (err, req, res) => {
       });
     }
   }
-  
+
   // 否則渲染 HTML 錯誤頁面
   if (err.isOperational) {
     res.status(err.statusCode).render('error', {
@@ -202,7 +209,7 @@ const resErrorDev = (err, req, res) => {
       stack: err.stack
     });
   }
-  
+
   // 否則渲染 HTML 錯誤頁面（帶詳細資訊）
   res.status(err.statusCode).render('error', {
     statusCode: err.statusCode,
