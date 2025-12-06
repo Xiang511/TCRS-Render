@@ -3,6 +3,7 @@ const Player = require('../models/Player'); // 引入 Player 模型
 const pageviews = require('../models/PageView');
 const router = express.Router();
 const dotenv = require('dotenv');
+const { isAuth } = require('../middleware/auth');
 dotenv.config({ path: './config.env' });
 // 渲染玩家列表頁面
 router.get('/', async function (req, res, next) {
@@ -25,8 +26,8 @@ router.get('/', async function (req, res, next) {
 
     // 獲取玩家資料並按星星點數排序
     const players = await Player.find(filter).sort({ starPoints: -1 });
- 
-    const Pageviews =  await pageviews.find({path:'/players'});
+
+    const Pageviews = await pageviews.find({ path: '/players' });
 
     res.render('players', {
       title: '生涯資料排行榜',
@@ -67,7 +68,7 @@ router.get('/leaderboard', async function (req, res, next) {
     // 獲取玩家資料並按星星點數排序
     const players = await Player.find(filter);
 
-    const Pageviews =  await pageviews.find({path:'/players/leaderboard'});
+    const Pageviews = await pageviews.find({ path: '/players/leaderboard' });
 
     res.render('leaderboard', {
       title: '天梯賽季排行榜',
@@ -108,7 +109,7 @@ router.get('/badges', async function (req, res, next) {
     // 獲取玩家資料並按星星點數排序
     const players = await Player.find(filter);
 
-    const Pageviews =  await pageviews.find({path:'/players/badges'});
+    const Pageviews = await pageviews.find({ path: '/players/badges' });
 
     res.render('badges', {
       title: '徽章進度排行榜',
@@ -177,10 +178,10 @@ router.get('/list', async function (req, res, next) {
 
 
 // 玩家詳情頁面 - 顯示歷史記錄
-router.get('/:tag', async function (req, res, next) {
+router.get('/:tag', isAuth, async function (req, res, next) {
   try {
     const playerTag = req.params.tag;
-    
+
     // 驗證 playerTag 格式
     const validTagPattern = /^[A-Z0-9]{8,}$/i;
     if (!validTagPattern.test(playerTag)) {
@@ -192,8 +193,8 @@ router.get('/:tag', async function (req, res, next) {
     }
 
     // 查詢該玩家的所有歷史記錄,按時間降序排列
-    const playerHistory = await Player.find({ 
-      tag: '#'+playerTag 
+    const playerHistory = await Player.find({
+      tag: '#' + playerTag
     }).sort({ time: -1 });
 
     // 如果找不到該玩家
@@ -205,10 +206,16 @@ router.get('/:tag', async function (req, res, next) {
       });
     }
 
-    res.render('player-detail', { 
+    const convertDays = (d) => ({ years: Math.floor(d / 365), weeks: Math.floor((d % 365) / 7), days: (d % 365) % 7 });
+
+    const converted = playerHistory[0].badges.YearsPlayed.progress || 0;
+    const userdaysPlayed = convertDays(converted);
+
+    res.render('player-detail', {
       title: `${playerHistory[0].name} - 玩家詳情`,
       player: playerHistory[0], // 最新的記錄
-      history: playerHistory // 所有歷史記錄
+      history: playerHistory, // 所有歷史記錄
+      userdaysPlayed: userdaysPlayed
     });
   } catch (error) {
     console.error('獲取玩家詳情失敗:', error);
