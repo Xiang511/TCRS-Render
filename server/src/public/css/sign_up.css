@@ -1,0 +1,23 @@
+#signup-form>.form-group {
+    margin-bottom: 1em;
+}
+
+.strength-fill {
+    width: 0%;
+    background-color: #e0e0e0;
+    height: 2px;
+}
+.bx-error-circle::before{
+    vertical-align: sub;
+    margin-right: 0.5em;
+}
+.btn-submit{
+    width: 100%;
+}
+.google-btn{
+    width: 100%;
+}
+.auth-switch{
+    text-align: center;
+    margin-top: 1em;
+}

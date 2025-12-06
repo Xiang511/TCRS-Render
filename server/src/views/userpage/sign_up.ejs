@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>註冊 - TCRS</title>
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="/css/sign_up.css">
+  <link rel="stylesheet" href="/css/background.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <!-- 左側歡迎區 -->
+      <div class="auth-welcome">
+        <div class="welcome-content">
+          <i class='bx bx-shield-alt-2'></i>
+          <h2>加入 TCRS!</h2>
+          <p>創建您的帳戶以使用完整功能</p>
+          <div class="welcome-features">
+            <div class="feature-item">
+              <i class='bx bx-check-circle'></i>
+              <span>即時追蹤排名數據</span>
+            </div>
+            <div class="feature-item">
+              <i class='bx bx-check-circle'></i>
+              <span>個人化數據分析</span>
+            </div>
+            <div class="feature-item">
+              <i class='bx bx-check-circle'></i>
+              <span>徽章收藏展示</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 右側註冊表單 -->
+      <div class="auth-form-container">
+        <div class="auth-header">
+          <h1>建立新帳戶</h1>
+          <p class="form-subtitle">填寫資訊開始使用</p>
+        </div>
+
+
+        <form id="signup-form" action="/users/sign_up" method="POST">
+          <!-- 姓名 -->
+          <div class="form-group">
+            <label for="name">
+              <i class='bx bx-user'></i>
+              姓名
+            </label>
+            <input type="text" id="name" name="name" placeholder="請輸入您的姓名" required>
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label for="email">
+              <i class='bx bx-envelope'></i>
+              電子郵件
+            </label>
+            <input type="email" id="email" name="email" placeholder="請輸入您的電子郵件" required>
+          </div>
+
+          <!-- 密碼 -->
+          <div class="form-group">
+            <label for="password">
+              <i class='bx bx-lock-alt'></i>
+              密碼
+            </label>
+            <div class="password-input-wrapper">
+              <input type="password" id="password" name="password" placeholder="至少 8 個字元" required>
+              <button type="button" class="toggle-password" data-target="password">
+                <i class='bx bx-show'></i>
+              </button>
+            </div>
+            <div class="password-strength">
+              <div class="strength-bar">
+                <div class="strength-fill" id="strength-fill"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 確認密碼 -->
+          <div class="form-group">
+            <label for="confirmPassword">
+              <i class='bx bx-lock-alt'></i>
+              確認密碼
+            </label>
+            <div class="password-input-wrapper">
+              <input type="password" id="confirmPassword" name="confirmPassword" placeholder="再次輸入密碼" required>
+              <button type="button" class="toggle-password" data-target="confirmPassword">
+                <i class='bx bx-show'></i>
+              </button>
+            </div>
+          </div>
+          <!-- 錯誤訊息 -->
+          <div id="error-message" class="error-message" style="display: none;">
+            <i class='bx bx-error-circle'></i>
+            <span id="error-text"></span>
+          </div>
+          <!-- 服務條款 -->
+          <!-- <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="terms" required>
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-text">
+                  我同意 <a href="/terms" target="_blank">服務條款</a> 和 <a href="/privacy" target="_blank">隱私政策</a>
+                </span>
+              </label>
+            </div> -->
+
+          <!-- 註冊按鈕 -->
+          <!-- Submit Button -->
+          <button type="submit" class="btn-submit" id="submit-btn">
+            <span class="btn-text">登入</span>
+            <span class="btn-loader" style="display: none;">
+              <i class='bx bx-loader-alt bx-spin'></i>
+            </span>
+          </button>
+        </form>
+
+        <!-- 分隔線 -->
+        <div class="divider">
+          <span>或使用社交帳號註冊</span>
+        </div>
+
+        <!-- 社交登入 -->
+        <div class="social-login">
+          <button class="social-btn google-btn">
+            <i class='bx bxl-google'></i>
+            <span>Google</span>
+          </button>
+        </div>
+
+        <!-- 登入連結 -->
+        <div class="auth-switch">
+          <p>已經有帳戶了？ <a href="/users/sign_in">立即登入</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <!-- 背景動畫 -->
+  <div class="area">
+    <ul class="circles">
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+  </div>
+  <script>
+    // 表單驗證
+    const form = document.getElementById('signup-form');
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    // const termsCheckbox = document.getElementById('terms');
+    const submitBtn = document.getElementById('submit-btn');
+    const errorMessage = document.getElementById('error-message');
+    const errorText = document.getElementById('error-text');
+
+    // 密碼顯示/隱藏
+    document.querySelectorAll('.toggle-password').forEach(button => {
+      button.addEventListener('click', function() {
+        const targetId = this.getAttribute('data-target');
+        const targetInput = document.getElementById(targetId);
+        const icon = this.querySelector('i');
+
+        if (targetInput.type === 'password') {
+          targetInput.type = 'text';
+          icon.classList.remove('bx-show');
+          icon.classList.add('bx-hide');
+        } else {
+          targetInput.type = 'password';
+          icon.classList.remove('bx-hide');
+          icon.classList.add('bx-show');
+        }
+      });
+    });
+
+    // 密碼強度檢測
+    passwordInput.addEventListener('input', function() {
+      const password = this.value;
+      const strengthFill = document.getElementById('strength-fill');
+
+
+      let strength = 0;
+      if (password.length >= 8) strength++;
+      if (password.match(/[a-z]+/)) strength++;
+      if (password.match(/[A-Z]+/)) strength++;
+      if (password.match(/[0-9]+/)) strength++;
+      if (password.match(/[$@#&!]+/)) strength++;
+
+      strengthFill.style.width = (strength * 20) + '%';
+
+      if (strength === 0) {
+        strengthFill.style.backgroundColor = '#e0e0e0';
+      } else if (strength <= 2) {
+        strengthFill.style.backgroundColor = '#ff4444';
+      } else if (strength <= 3) {
+        strengthFill.style.backgroundColor = '#ffbb33';
+      } else {
+        strengthFill.style.backgroundColor = '#00C851';
+      }
+    });
+
+    // 顯示錯誤訊息
+    function showError(message) {
+      errorText.textContent = message;
+      errorMessage.style.display = 'flex';
+      errorMessage.classList.add('shake');
+      setTimeout(() => {
+        errorMessage.classList.remove('shake');
+      }, 500);
+    }
+
+    // 隱藏錯誤訊息
+    function hideError() {
+      errorMessage.style.display = 'none';
+    }
+
+    // 表單提交驗證
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      hideError();
+
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+
+      // 驗證姓名
+      if (name.length < 2) {
+        showError('姓名至少需要 2 個字元');
+        nameInput.focus();
+        return;
+      }
+
+      // 驗證 Email 格式
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showError('請輸入有效的電子郵件地址');
+        emailInput.focus();
+        return;
+      }
+
+      // 驗證密碼長度
+      if (password.length < 8) {
+        showError('密碼至少需要 8 個字元');
+        passwordInput.focus();
+        return;
+      }
+
+      // 驗證密碼是否一致
+      if (password !== confirmPassword) {
+        showError('兩次輸入的密碼不一致');
+        confirmPasswordInput.focus();
+        return;
+      }
+
+      // 驗證服務條款
+      //   if (!termsCheckbox.checked) {
+      //     showError('請閱讀並同意服務條款和隱私政策');
+      //     return;
+      //   }
+
+      // 顯示載入狀態
+      submitBtn.disabled = true;
+      submitBtn.querySelector('.btn-text').style.display = 'none';
+      submitBtn.querySelector('.btn-loader').style.display = 'inline-block';
+
+      // 提交表單
+      try {
+        const response = await fetch('/users/sign_up', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: name,
+            email: email,
+            password: password,
+            confirmPassword: confirmPassword
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+          // 註冊成功，重定向到首頁
+          window.location.href = data.redirect || '/';
+        } else {
+          // 顯示錯誤訊息
+          showError(data.message || '註冊失敗，請稍後再試');
+          submitBtn.disabled = false;
+          submitBtn.querySelector('.btn-text').style.display = 'inline';
+          submitBtn.querySelector('.btn-loader').style.display = 'none';
+        }
+      } catch (error) {
+        showError('網路錯誤，請稍後再試');
+        submitBtn.disabled = false;
+        submitBtn.querySelector('.btn-text').style.display = 'inline';
+        submitBtn.querySelector('.btn-loader').style.display = 'none';
+      }
+    });
+
+    // 輸入時隱藏錯誤訊息
+    [nameInput, emailInput, passwordInput, confirmPasswordInput].forEach(input => {
+      input.addEventListener('input', hideError);
+    });
+
+    // 社交登入按鈕 (待實作)
+    document.querySelectorAll('.social-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const provider = this.classList.contains('google-btn') ? 'Google' : 'Discord';
+        alert(`${provider} 登入功能開發中...`);
+      });
+    });
+
+    // 頁面載入動畫
+    window.addEventListener('load', function() {
+      document.querySelector('.auth-card').style.animation = 'slideUp 0.6s ease-out';
+    });
+  </script>
+</body>
+
+</html>
