@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>個人資料 - TCRS</title>
+  <link rel="stylesheet" href="/css/nav.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="stylesheet" href="/css/background.css">
+  <link rel="stylesheet" href="/css/profile.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+</head>
+
+<body>
+  <!-- 導航欄 -->
+  <section class="nav-bg">
+    <input type="checkbox" id="menu-switch">
+    <header class="main-header">
+      <div class="logo">
+        <a href="/">TCRS</a>
+      </div>
+      <label for="menu-switch" class="hb icon">
+        <i class='bx bx-menu open'></i>
+        <i class='bx bx-x close'></i>
+      </label>
+      <nav class="main-nav">
+        <a class="click" href="/"><i class='bx bx-home-alt-2'></i> 首頁</a>
+        <a class="click" href="/players"><i class='bx bx-trophy mr-1'></i> 生涯紀錄</a>
+        <a class="click" href="/players/leaderboard"><i class='bx bx-bar-chart-alt-2 mr-1'></i> 天梯紀錄</a>
+        <a class="click" href="/players/badges"><i class='bx bx-badge-check mr-1'></i> 徽章紀錄</a>
+        <a class="click" href="/users/profile"><i class='bx bx-user mr-1'></i> 個人資料</a>
+      </nav>
+    </header>
+  </section>
+
+  <!-- 背景動畫 -->
+  <div class="area">
+    <ul class="circles">
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+      <li></li>
+    </ul>
+  </div>
+
+  <!-- 個人資料容器 -->
+  <div class="profile-container">
+    <!-- 個人資料頭部 -->
+    <div class="profile-header">
+      <div class="profile-header-content">
+        <div class="profile-avatar">
+          <%= user.name ? user.name.charAt(0).toUpperCase() : 'U' %>
+        </div>
+        <div class="profile-info">
+          <h1><%= user.name || '使用者' %></h1>
+          <p><i class='bx bx-envelope'></i> <%= user.email %></p>
+          <p><i class='bx bx-calendar'></i> 加入時間：<%= new Date(user.createdAt).toLocaleDateString('zh-TW') %></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 統計卡片 -->
+    <div class="profile-stats">
+      <div class="stat-card">
+        <div class="stat-icon purple">
+          <i class='bx bx-trophy'></i>
+        </div>
+        <h3>追蹤玩家</h3>
+        <p class="stat-value">0</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue">
+          <i class='bx bx-star'></i>
+        </div>
+        <h3>收藏徽章</h3>
+        <p class="stat-value">0</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">
+          <i class='bx bx-line-chart'></i>
+        </div>
+        <h3>觀看次數</h3>
+        <p class="stat-value">0</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon orange">
+          <i class='bx bx-time'></i>
+        </div>
+        <h3>使用天數</h3>
+        <p class="stat-value"><%= Math.floor((new Date() - new Date(user.createdAt)) / (1000 * 60 * 60 * 24)) %></p>
+      </div>
+    </div>
+
+    <!-- 個人資料區塊 -->
+    <div class="profile-sections">
+      <!-- 帳戶資訊 -->
+      <div class="profile-section">
+        <div class="section-header">
+          <i class='bx bx-user-circle'></i>
+          <h2>帳戶資訊</h2>
+        </div>
+        <div class="info-row">
+          <span class="info-label">使用者名稱</span>
+          <span class="info-value"><%= user.name || '未設定' %></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">電子郵件</span>
+          <span class="info-value"><%= user.email %></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">帳戶狀態</span>
+          <span class="info-value" style="color: #43e97b;">
+            <i class='bx bx-check-circle'></i> 已啟用
+          </span>
+        </div>
+        <div class="action-buttons">
+          <button class="btn btn-primary" onclick="openEditModal()">
+            <i class='bx bx-edit'></i> 編輯資料
+          </button>
+          <button class="btn btn-secondary" onclick="openPasswordModal()">
+            <i class='bx bx-lock'></i> 修改密碼
+          </button>
+        </div>
+      </div>
+
+      <!-- 最近活動 -->
+      <div class="profile-section">
+        <div class="section-header">
+          <i class='bx bx-history'></i>
+          <h2>最近活動</h2>
+        </div>
+        <div class="empty-state">
+          <i class='bx bx-time-five'></i>
+          <p>暫無活動記錄</p>
+        </div>
+        <!-- 活動列表範例（當有資料時顯示）
+        <ul class="activity-list">
+          <li class="activity-item">
+            <div class="activity-icon">
+              <i class='bx bx-search'></i>
+            </div>
+            <div class="activity-content">
+              <h4>查看玩家資料</h4>
+              <p>2 小時前</p>
+            </div>
+          </li>
+        </ul>
+        -->
+      </div>
+    </div>
+
+    <!-- 危險區域 -->
+    <div class="profile-section" style="margin-top: 30px; border: 2px solid #ff4444;">
+      <div class="section-header">
+        <i class='bx bx-error' style="color: #ff4444;"></i>
+        <h2 style="color: #ff4444;">危險區域</h2>
+      </div>
+      <p style="color: #666; margin-bottom: 20px;">
+        登出您的帳戶以保護您的個人資料安全。
+      </p>
+      <button class="btn btn-danger" onclick="confirmLogout()">
+        <i class='bx bx-log-out'></i> 登出帳戶
+      </button>
+      <p style="color: #666; margin-bottom: 20px;">
+        刪除帳戶後，您的所有資料將無法恢復。請謹慎操作。
+      </p>
+      <button class="btn btn-danger" onclick="confirmDelete()">
+        <i class='bx bx-trash'></i> 刪除帳戶
+      </button>
+    </div>
+  </div>
+
+  <!-- 編輯資料 Modal -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class='bx bx-edit'></i> 編輯個人資料</h2>
+        <span class="close" onclick="closeEditModal()">&times;</span>
+      </div>
+      <form id="editForm">
+        <div class="form-group">
+          <label for="editName">使用者名稱</label>
+          <input type="text" id="editName" name="name" value="<%= user.name %>" required>
+        </div>
+        <div class="action-buttons">
+          <button type="submit" class="btn btn-primary">
+            <i class='bx bx-save'></i> 儲存變更
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="closeEditModal()">
+            <i class='bx bx-x'></i> 取消
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 修改密碼 Modal -->
+  <div id="passwordModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class='bx bx-lock'></i> 修改密碼</h2>
+        <span class="close" onclick="closePasswordModal()">&times;</span>
+      </div>
+      <form id="passwordForm">
+        <div class="form-group">
+          <label for="currentPassword">目前密碼</label>
+          <input type="text" id="currentPassword" name="currentPassword" required>
+        </div>
+        <div class="form-group">
+          <label for="newPassword">新密碼</label>
+          <input type="text" id="Password" name="password" minlength="8" required>
+        </div>
+        <div class="form-group">
+          <label for="confirmNewPassword">確認新密碼</label>
+          <input type="text" id="confirmNewPassword" name="confirmPassword" minlength="8" required>
+        </div>
+        <div class="action-buttons">
+          <button type="submit" class="btn btn-primary">
+            <i class='bx bx-check'></i> 更新密碼
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="closePasswordModal()">
+            <i class='bx bx-x'></i> 取消
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Modal 控制
+    function openEditModal() {
+      document.getElementById('editModal').style.display = 'block';
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').style.display = 'none';
+    }
+
+    function openPasswordModal() {
+      document.getElementById('passwordModal').style.display = 'block';
+    }
+
+    function closePasswordModal() {
+      document.getElementById('passwordModal').style.display = 'none';
+    }
+
+    // 點擊 modal 外部關閉
+    // window.onclick = function(event) {
+    //   const editModal = document.getElementById('editModal');
+    //   const passwordModal = document.getElementById('passwordModal');
+    //   if (event.target === editModal) {
+    //     closeEditModal();
+    //   }
+    //   if (event.target === passwordModal) {
+    //     closePasswordModal();
+    //   }
+    // }
+
+    // 編輯資料表單提交
+    document.getElementById('editForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const data = {
+        name: formData.get('name'),
+      };
+
+      try {
+        const response = await fetch('/users/updateProfile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          alert('個人資料更新成功！');
+          location.reload();
+        } else {
+          alert(result.message || '更新失敗，請稍後再試');
+        }
+      } catch (error) {
+        alert('網路錯誤，請稍後再試');
+      }
+    });
+
+    // 修改密碼表單提交
+    document.getElementById('passwordForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const currentPassword = formData.get('currentPassword');
+      const password = formData.get('password');
+      const confirmPassword = formData.get('confirmPassword');
+
+      if (!currentPassword) {
+        alert('請輸入目前密碼！');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        alert('新密碼與確認密碼不一致！');
+        return;
+      }
+
+      if (password.length < 8) {
+        alert('密碼長度至少需要 8 個字元！');
+        return;
+      }
+
+      try {
+        const response = await fetch('/users/updatePassword', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            currentPassword: currentPassword,
+            password: password,
+            confirmNewPassword: confirmPassword
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          alert('密碼更新成功！');
+          closePasswordModal();
+          this.reset();
+        } else {
+          alert(result.message || '更新失敗，請稍後再試');
+        }
+      } catch (error) {
+        alert('網路錯誤，請稍後再試');
+        console.log(error);
+      }
+    });
+
+    // 登出確認
+    function confirmLogout() {
+      const confirmed = confirm('確定要登出帳戶嗎？');
+
+      if (confirmed) {
+        window.location.href = '/users/logout';
+      }
+    }
+
+    // 刪除帳戶確認
+    function confirmDelete() {
+      const confirmed = confirm('確定要刪除帳戶嗎？此操作無法恢復！\n\n請再次確認您要刪除帳戶。');
+
+      if (confirmed) {
+        const doubleConfirm = confirm('最後確認：刪除後所有資料將永久消失，確定要繼續嗎？');
+
+        if (doubleConfirm) {
+          // TODO: 實作刪除帳戶 API
+          alert('帳戶刪除功能開發中...');
+        }
+      }
+    }
+
+    // 頁面載入動畫
+    window.addEventListener('load', function() {
+      document.querySelector('.profile-container').style.animation = 'slideUp 0.6s ease-out';
+    });
+  </script>
+</body>
+
+</html>
