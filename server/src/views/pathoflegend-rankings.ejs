@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Path of Legend 排名分析</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="/css/nav.css">
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+
+<body class="bg-gray-100">
+  <!-- Navigation -->
+  <section class="nav-bg">
+    <a href="https://SiteStates.com" title="站長工具" style="display: none;">
+      <img src="https://SiteStates.com/show/image/33556.jpg" border="0" />
+    </a>
+    <input type="checkbox" id="menu-switch">
+    <header class="main-header">
+      <div class="logo">
+        <a href="/">
+          TCRS
+        </a>
+      </div>
+      <label for="menu-switch" class="hb icon">
+        <i class='bx bx-menu open'></i>
+        <i class='bx bx-x close'></i>
+      </label>
+      <nav class="main-nav">
+        <a class="click" href="/"><i class='bx bx-home-alt-2'></i> 首頁</a>
+        <a class="click" href="/players"><i class='bx bx-trophy mr-1'></i> 生涯紀錄</a>
+        <a class="click" href="/players/leaderboard"><i class='bx bx-bar-chart-alt-2 mr-1'></i> 天梯紀錄</a>
+        <a class="click" href="/players/badges"><i class='bx bx-badge-check mr-1'></i> 徽章紀錄</a>
+        <a class="click" href="/players/pathoflegend/Rankings"><i class='bx bx-crown mr-1'></i> 分析圖表</a>
+        <a class="click" href="/users/profile"><% if (user) { %><i class='bx bx-smile'></i> 關於我<% } else { %><i class='bx bx-ghost'></i> 登入<% } %></a>
+      </nav>
+    </header>
+  </section>
+
+  <!-- Main Content -->
+  <div class="container mx-auto py-8 ">
+    <!-- Header -->
+    <!-- <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h1 class="text-3xl font-bold text-gray-800 mb-4">
+        <i class='bx bx-crown text-yellow-500'></i> Path of Legend 排名分析
+      </h1>
+    </div> -->
+
+    <!-- Filter Controls -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+      <h1 class="text-3xl font-bold text-gray-800 mb-4">
+        <i class='bx bx-crown text-yellow-500'></i> Path of Legend 排名分析
+      </h1>
+      <h2 class="text-xl font-bold text-gray-800 mb-4">
+        <i class='bx bx-filter-alt mr-2'></i>篩選條件
+      </h2>
+      <form id="filterForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">起始排名</label>
+          <input type="number" id="startRank" name="startRank" value="<%= startRank %>" min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">結束排名</label>
+          <input type="number" id="endRank" name="endRank" value="<%= endRank %>" min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">賽季</label>
+          <select id="seasonSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+            <% availableSeasons.forEach(function(s) { %>
+            <option value="<%= s %>" <%= currentSeason === s ? 'selected' : '' %>>
+              <%= s %>
+            </option>
+            <% }); %>
+          </select>
+        </div>
+        <div class="flex items-end">
+          <button type="submit" class="w-full bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition duration-200">
+            <i class='bx bx-search-alt mr-2'></i>查詢
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+      <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-600">最高 Rating</p>
+            <p class="text-2xl font-bold text-indigo-600"><%= stats.maxElo %></p>
+          </div>
+          <i class='bx bx-trending-up text-4xl text-indigo-600'></i>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-600">最低 Rating</p>
+            <p class="text-2xl font-bold text-purple-600"><%= stats.minElo %></p>
+          </div>
+          <i class='bx bx-trending-down text-4xl text-purple-600'></i>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-600">平均 Rating</p>
+            <p class="text-2xl font-bold text-green-600"><%= stats.avgElo %></p>
+          </div>
+          <i class='bx bx-bar-chart-alt text-4xl text-green-600'></i>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-gray-600">資料筆數</p>
+            <p class="text-2xl font-bold text-yellow-600"><%= rankings.length %></p>
+          </div>
+          <i class='bx bx-data text-4xl text-yellow-600'></i>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Rank Climbing Difficulty -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-gray-800">
+          <i class='bx bx-trending-up mr-2'></i>排名攀升難度分析
+        </h2>
+
+      </div>
+      <div id="climbingDifficultyChart" class="min-h-[400px] flex items-center justify-center">
+        <p class="text-gray-400">點擊上方按鈕載入排名攀升難度圖表</p>
+      </div>
+      <div class="mt-4 bg-blue-50 p-4 rounded-lg">
+        <p class="text-sm text-blue-800">
+          <i class='bx bx-info-circle mr-1'></i>
+          此圖表顯示在不同排名區間，攀升 100/500/1000 名所需的 Rating 差距。曲線越陡峭表示競爭越激烈。
+        </p>
+      </div>
+    </div>
+
+    <!-- Rank Density Analysis -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-gray-800">
+          <i class='bx bx-scatter-chart mr-2'></i>排名密度分析
+        </h2>
+
+      </div>
+      <div id="densityChart" class="min-h-[400px] flex items-center justify-center">
+        <p class="text-gray-400">點擊上方按鈕載入排名密度圖表</p>
+      </div>
+      <div class="mt-4 bg-purple-50 p-4 rounded-lg">
+        <p class="text-sm text-purple-800">
+          <i class='bx bx-info-circle mr-1'></i>
+          此圖表顯示每 50 Rating 區間內的玩家數量,幫助識別玩家集中的 Rating 範圍。
+        </p>
+      </div>
+    </div>
+
+    <!-- ELO Growth Rate -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-gray-800">
+          <i class='bx bx-trending-up mr-2'></i>Rating 成長率分析
+        </h2>
+
+      </div>
+      <div id="growthRateChart" class="min-h-[400px] flex items-center justify-center">
+        <p class="text-gray-400">點擊上方按鈕載入 Rating 成長率圖表</p>
+      </div>
+      <div class="mt-4 bg-green-50 p-4 rounded-lg">
+        <p class="text-sm text-green-800">
+          <i class='bx bx-info-circle mr-1'></i>
+          此圖表顯示每 100 排名區間的平均 Rating 增長率,幫助了解不同排名段的競爭強度。
+        </p>
+      </div>
+    </div>
+
+
+
+    <!-- Top Players Table -->
+    <!--  -->
+
+    <script>
+      // 準備圖表資料
+      const rankings = <%- JSON.stringify(rankings) %>;
+
+      // 圖表實例
+      let climbingChart = null;
+      let densityChart = null;
+      let growthChart = null;
+
+
+      // 載入排名攀升難度圖表
+      function loadClimbingChart() {
+        if (climbingChart) {
+          return;
+        }
+
+
+
+        // 清除占位文字
+        document.querySelector('#climbingDifficultyChart').innerHTML = '';
+
+        // 計算不同排名區間攀升所需 ELO 差距
+        const climbSteps = [100, 500, 1000]; // 攀升的排名數
+        const sampleRanks = [];
+
+        // 每 100 名取樣一次
+        for (let i = 0; i < rankings.length; i += 100) {
+          sampleRanks.push(i);
+        }
+
+        const climbingData = climbSteps.map(step => {
+          const data = sampleRanks.map(index => {
+            const currentPlayer = rankings[index];
+            const targetIndex = Math.max(0, index - step);
+            const targetPlayer = rankings[targetIndex];
+
+            if (!currentPlayer || !targetPlayer) return null;
+
+            const eloDiff = parseInt(targetPlayer.eloRating) - parseInt(currentPlayer.eloRating);
+            return {
+              rank: currentPlayer.rank,
+              eloDiff: eloDiff
+            };
+          }).filter(d => d !== null);
+
+          return {
+            name: `攀升 ${step} 名`,
+            data: data.map(d => ({
+              x: d.rank,
+              y: d.eloDiff
+            }))
+          };
+        });
+
+        // 排名攀升難度圖表
+        const climbingOptions = {
+          series: climbingData,
+          chart: {
+            type: 'line',
+            height: 400,
+            toolbar: {
+              show: true
+            },
+            zoom: {
+              enabled: true
+            }
+          },
+          stroke: {
+            curve: 'smooth',
+            width: 3
+          },
+          colors: ['#10b981', '#f59e0b', '#ef4444'],
+          markers: {
+            size: 0,
+            hover: {
+              size: 6
+            }
+          },
+          xaxis: {
+            type: 'numeric',
+            title: {
+              text: '當前排名'
+            },
+            reversed: true, // 反轉 X 軸，讓排名 1 在右邊
+            labels: {
+              formatter: function(val) {
+                return '#' + Math.round(val);
+              }
+            }
+          },
+          yaxis: {
+            title: {
+              text: 'Rating 差距'
+            },
+            labels: {
+              formatter: function(val) {
+                return Math.round(val);
+              }
+            }
+          },
+          tooltip: {
+            shared: true,
+            intersect: false,
+            x: {
+              formatter: function(val) {
+                return '排名 #' + Math.round(val);
+              }
+            },
+            y: {
+              formatter: function(val) {
+                return val.toFixed(0) + ' Rating';
+              }
+            }
+          },
+          legend: {
+            position: 'top',
+            horizontalAlign: 'center'
+          },
+          grid: {
+            borderColor: '#e7e7e7',
+            strokeDashArray: 5
+          }
+        };
+
+        climbingChart = new ApexCharts(document.querySelector("#climbingDifficultyChart"), climbingOptions);
+        climbingChart.render();
+      }
+
+      // 載入排名密度圖表
+      function loadDensityChart() {
+        if (densityChart) {
+          return;
+        }
+
+
+        // 清除占位文字
+        document.querySelector('#densityChart').innerHTML = '';
+
+        // 計算 ELO 密度分佈 (每 50 ELO 為一個區間)
+        const minElo = Math.min(...rankings.map(r => parseInt(r.eloRating)));
+        const maxElo = Math.max(...rankings.map(r => parseInt(r.eloRating)));
+        const binSize = 50;
+
+        const bins = [];
+        for (let elo = Math.floor(minElo / binSize) * binSize; elo <= maxElo; elo += binSize) {
+          const count = rankings.filter(r => {
+            const playerElo = parseInt(r.eloRating);
+            return playerElo >= elo && playerElo < elo + binSize;
+          }).length;
+
+          if (count > 0) {
+            bins.push({
+              elo: elo,
+              label: `${elo}-${elo + binSize}`,
+              count: count
+            });
+          }
+        }
+
+        // 密度圖表
+        const densityOptions = {
+          series: [{
+            name: '玩家數量',
+            data: bins.map(b => ({
+              x: b.elo + binSize / 2,
+              y: b.count
+            }))
+          }],
+          chart: {
+            type: 'bar',
+            height: 400,
+            toolbar: {
+              show: true
+            }
+          },
+          plotOptions: {
+            bar: {
+              horizontal: false,
+              columnWidth: '90%',
+              borderRadius: 4
+            }
+          },
+          colors: ['#06b6d4'],
+          dataLabels: {
+            enabled: false
+          },
+          xaxis: {
+            type: 'numeric',
+            title: {
+              text: ' Rating'
+            },
+            labels: {
+              formatter: function(val) {
+                return Math.round(val);
+              }
+            },
+            tickAmount: 10
+          },
+          yaxis: {
+            title: {
+              text: '玩家數量'
+            }
+          },
+          tooltip: {
+            custom: function({
+              seriesIndex,
+              dataPointIndex,
+              w
+            }) {
+              const bin = bins[dataPointIndex];
+              const percentage = ((bin.count / rankings.length) * 100).toFixed(2);
+              return '<div class="p-3">' +
+                '<div class="font-bold">' + bin.label + ' Rating</div>' +
+                '<div>' + bin.count + ' 玩家 (' + percentage + '%)</div>' +
+                '</div>';
+            }
+          },
+          grid: {
+            borderColor: '#e7e7e7',
+            strokeDashArray: 5
+          }
+        };
+
+        densityChart = new ApexCharts(document.querySelector("#densityChart"), densityOptions);
+        densityChart.render();
+
+
+      }
+
+      // 載入 ELO 成長率圖表
+      function loadGrowthChart() {
+        if (growthChart) {
+          return;
+        }
+
+
+
+        // 清除占位文字
+        document.querySelector('#growthRateChart').innerHTML = '';
+
+        // 計算每 100 排名區間的平均 ELO 增長率
+        const rankStep = 100;
+        const growthData = [];
+
+        for (let i = 0; i < rankings.length - rankStep; i += rankStep) {
+          const currentGroup = rankings.slice(i, i + rankStep);
+          const nextGroup = rankings.slice(Math.max(0, i - rankStep), i);
+
+          if (nextGroup.length === 0) continue;
+
+          const avgCurrentElo = currentGroup.reduce((sum, r) => sum + parseInt(r.eloRating), 0) / currentGroup.length;
+          const avgNextElo = nextGroup.reduce((sum, r) => sum + parseInt(r.eloRating), 0) / nextGroup.length;
+
+          const growthRate = avgNextElo - avgCurrentElo;
+          const avgRank = currentGroup[Math.floor(currentGroup.length / 2)].rank;
+
+          growthData.push({
+            rank: avgRank,
+            growthRate: growthRate,
+            avgElo: avgCurrentElo
+          });
+        }
+
+        // ELO 成長率圖表
+        const growthOptions = {
+          series: [{
+            name: 'Rating 增長率 (每 100 名)',
+            data: growthData.map(d => ({
+              x: d.rank,
+              y: d.growthRate
+            }))
+          }],
+          chart: {
+            type: 'area',
+            height: 400,
+            toolbar: {
+              show: true
+            }
+          },
+          stroke: {
+            curve: 'smooth',
+            width: 3
+          },
+          colors: ['#14b8a6'],
+          fill: {
+            type: 'gradient',
+            gradient: {
+              shade: 'light',
+              type: 'vertical',
+              shadeIntensity: 0.4,
+              opacityFrom: 0.6,
+              opacityTo: 0.2
+            }
+          },
+          markers: {
+            size: 0
+          },
+          xaxis: {
+            type: 'numeric',
+            title: {
+              text: '排名'
+            },
+            reversed: true,
+            labels: {
+              formatter: function(val) {
+                return '#' + Math.round(val);
+              }
+            }
+          },
+          yaxis: {
+            title: {
+              text: 'Rating 增長率 (每 100 名)'
+            },
+            labels: {
+              formatter: function(val) {
+                return val.toFixed(1);
+              }
+            }
+          },
+          tooltip: {
+            x: {
+              formatter: function(val) {
+                return '排名 #' + Math.round(val);
+              }
+            },
+            y: {
+              formatter: function(val) {
+                return val.toFixed(2) + ' Rating/100名';
+              }
+            }
+          },
+          grid: {
+            borderColor: '#e7e7e7',
+            strokeDashArray: 5
+          },
+          dataLabels: {
+            enabled: false
+          }
+        };
+
+        growthChart = new ApexCharts(document.querySelector("#growthRateChart"), growthOptions);
+        growthChart.render();
+
+
+      }
+
+
+
+
+      window.onload = function() {
+        // 自動載入 ELO 分佈圖表
+        loadClimbingChart()
+        loadDensityChart()
+        loadGrowthChart()
+      };
+      // Form submission  
+      document.getElementById('filterForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const startRank = document.getElementById('startRank').value;
+        const endRank = document.getElementById('endRank').value;
+        const season = document.getElementById('seasonSelect').value;
+        window.location.href = `/players/pathoflegend/Rankings?startRank=${startRank}&endRank=${endRank}&season=${season}`;
+      });
+    </script>
+</body>
+
+</html>

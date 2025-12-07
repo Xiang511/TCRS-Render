@@ -1,12 +1,13 @@
 const express = require('express');
 const Player = require('../models/Player'); // 引入 Player 模型
+const Pathoflegend = require('../models/pathoflegend'); // 引入 Pathoflegend 模型
 const pageviews = require('../models/PageView');
 const router = express.Router();
 const dotenv = require('dotenv');
-const { isAuth } = require('../middleware/auth');
+const { isAuth, optionalAuth } = require('../middleware/auth');
 dotenv.config({ path: './config.env' });
 // 渲染玩家列表頁面
-router.get('/', async function (req, res, next) {
+router.get('/', optionalAuth, async function (req, res, next) {
   try {
     let { time } = req.query;
 
@@ -35,7 +36,8 @@ router.get('/', async function (req, res, next) {
       players: players,
       availableSeasons: availableSeasons,
       currentSeason: time || '',
-      Pageviews: Pageviews
+      Pageviews: Pageviews,
+      user: req.user
     });
   } catch (error) {
     console.error('獲取玩家列表失敗:', error);
@@ -47,7 +49,7 @@ router.get('/', async function (req, res, next) {
   }
 });
 
-router.get('/leaderboard', async function (req, res, next) {
+router.get('/leaderboard', optionalAuth, async function (req, res, next) {
   try {
     let { time } = req.query;
 
@@ -76,7 +78,8 @@ router.get('/leaderboard', async function (req, res, next) {
       players: players,
       availableSeasons: availableSeasons,
       currentSeason: time || '',
-      Pageviews: Pageviews
+      Pageviews: Pageviews,
+      user: req.user
     });
   } catch (error) {
     console.error('獲取天梯列表失敗:', error);
@@ -88,7 +91,7 @@ router.get('/leaderboard', async function (req, res, next) {
   }
 });
 
-router.get('/badges', async function (req, res, next) {
+router.get('/badges', optionalAuth, async function (req, res, next) {
   try {
     let { time } = req.query;
 
@@ -117,7 +120,8 @@ router.get('/badges', async function (req, res, next) {
       players: players,
       availableSeasons: availableSeasons,
       currentSeason: time || '',
-      Pageviews: Pageviews
+      Pageviews: Pageviews,
+      user: req.user
     });
   } catch (error) {
     console.error('獲取徽章進度排行榜失敗:', error);
@@ -215,7 +219,8 @@ router.get('/:tag', isAuth, async function (req, res, next) {
       title: `${playerHistory[0].name} - 玩家詳情`,
       player: playerHistory[0], // 最新的記錄
       history: playerHistory, // 所有歷史記錄
-      userdaysPlayed: userdaysPlayed
+      userdaysPlayed: userdaysPlayed,
+      user: req.user
     });
   } catch (error) {
     console.error('獲取玩家詳情失敗:', error);
@@ -297,5 +302,77 @@ router.get('/:tag', isAuth, async function (req, res, next) {
 // });
 
 
+
+// Path of Legend Rankings Page
+router.get('/pathoflegend/Rankings', isAuth, async function (req, res, next) {
+  try {
+    let { startRank = 1, endRank = 1000, season } = req.query;
+
+    // 轉換為數字
+    startRank = parseInt(startRank);
+    endRank = parseInt(endRank);
+
+    // 獲取所有可用的賽季
+    const availableSeasons = await Pathoflegend.distinct('season');
+    availableSeasons.sort().reverse(); // 最新的在前面
+
+    // 如果沒有指定賽季且有可用賽季,預設顯示最新賽季
+    if (!season && availableSeasons.length > 0) {
+      season = availableSeasons[0];
+    }
+
+    // 查詢條件
+    const filter = { season };
+    if (startRank && endRank) {
+      filter.rank = { $gte: startRank, $lte: endRank };
+    }
+
+    // 獲取排名資料
+    const rankings = await Pathoflegend.find(filter)
+      .sort({ rank: 1 })
+      .limit((endRank - startRank + 1)); // 限制最多1000筆避免資料過大
+
+    // 獲取總玩家數
+    const totalPlayers = await Pathoflegend.countDocuments({ season });
+
+    // 計算統計資料
+    const stats = {
+      maxElo: 0,
+      minElo: Infinity,
+      avgElo: 0
+    };
+
+    if (rankings.length > 0) {
+      const eloValues = rankings.map(r => parseInt(r.eloRating));
+      stats.maxElo = Math.max(...eloValues);
+      stats.minElo = Math.min(...eloValues);
+      stats.avgElo = Math.round(eloValues.reduce((a, b) => a + b, 0) / eloValues.length);
+    }
+
+    // 獲取頁面瀏覽數
+    const Pageviews = await pageviews.find({ path: '/players/pathoflegend' });
+
+    res.render('pathoflegend-rankings', {
+      title: 'Path of Legend 排名分析',
+      rankings: rankings,
+      stats: stats,
+      startRank: startRank,
+      endRank: endRank,
+      season: season,
+      availableSeasons: availableSeasons,
+      currentSeason: season || '',
+      totalPlayers: totalPlayers,
+      Pageviews: Pageviews,
+      user: req.user
+    });
+  } catch (error) {
+    console.error('獲取 Path of Legend 排名失敗:', error);
+    res.status(500).render('error', {
+      statusCode: 500,
+      title: '伺服器錯誤',
+      message: '系統發生錯誤，請稍後再試或聯繫管理員。'
+    });
+  }
+});
 
 module.exports = router;
