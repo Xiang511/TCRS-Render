@@ -32,13 +32,14 @@
       </label>
       <nav class="main-nav">
         <a class="click" href="/"><i class='bx bx-home-alt-2'></i> 首頁</a>
-        <a class="click" href="/players"><i class='bx bx-trophy mr-1'></i>生涯紀錄</a>
-        <a class="click" href="/players/leaderboard"><i class='bx bx-bar-chart-alt-2 mr-1'></i>天梯紀錄</a>
-        <a class="click" href="/players/badges"><i class='bx bx-badge-check mr-1'></i>徽章紀錄</a>
+        <a class="click" href="/players"><i class='bx bx-trophy mr-1'></i> 生涯紀錄</a>
+        <a class="click" href="/players/leaderboard"><i class='bx bx-bar-chart-alt-2 mr-1'></i> 天梯紀錄</a>
+        <a class="click" href="/players/badges"><i class='bx bx-badge-check mr-1'></i> 徽章紀錄</a>
+        <a class="click" href="/players/pathoflegend/Rankings"><i class='bx bx-crown mr-1'></i> 分析圖表</a>
+        <a class="click" href="/users/profile"><% if (user) { %><i class='bx bx-smile'></i> 關於我<% } else { %><i class='bx bx-ghost'></i> 登入<% } %></a>
       </nav>
     </header>
   </section>
-
   <!-- Main Content -->
   <div class="container mx-auto  py-8">
     <!-- Player Header -->
@@ -119,7 +120,7 @@
           <i class='bx bx-line-chart mr-2'></i>排名歷史趨勢
         </h2>
         <!-- <div id="rankHistoryChart"></div> -->
-         🚧 維修中
+        🚧 維修中
       </div>
 
       <!-- Trophy History Chart -->
@@ -128,7 +129,7 @@
           <i class='bx bx-trending-up mr-2'></i>獎盃歷史趨勢
         </h2>
         <!-- <div id="trophyHistoryChart"></div> -->
-         🚧 維修中
+        🚧 維修中
       </div>
     </div>
 
@@ -225,7 +226,7 @@
               </td>
             </tr>
             <% }); %> -->
-         🚧 維修中
+            🚧 維修中
 
           </tbody>
         </table>
