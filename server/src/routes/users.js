@@ -6,7 +6,7 @@ const { isAuth, generateSendJWT } = require('../middleware/auth');
 const router = express.Router();
 
 
-router.get('/logout', (req, res) => {
+router.get('/logout', isAuth, (req, res) => {
     res.cookie('jwt', '', { maxAge: 1 }); // 清除 cookie
     res.redirect('/'); // 重定向到登入頁面
 });
