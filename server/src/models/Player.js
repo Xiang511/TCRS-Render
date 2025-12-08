@@ -31,6 +31,11 @@ const playerSchema = new mongoose.Schema({
     },
     starPoints: { type: Number, default: 0 },
     expPoints: { type: Number, default: 0 },
+    currentPathOfLegendSeasonResult: {
+        leagueNumber: { type: Number },
+        trophies: { type: Number },
+        rank: { type: Number }
+    },
     lastPathOfLegendSeasonResult: {
         leagueNumber: { type: Number },
         trophies: { type: Number },

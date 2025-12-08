@@ -86,6 +86,7 @@ async function fetchAndSavePlayer(playerTag) {
             leagueStatistics: data.leagueStatistics || {},
             starPoints: data.starPoints || 0,
             expPoints: data.expPoints || 0,
+            currentPathOfLegendSeasonResult: data.currentPathOfLegendSeasonResult || {},
             lastPathOfLegendSeasonResult: data.lastPathOfLegendSeasonResult || {},
             bestPathOfLegendSeasonResult: data.bestPathOfLegendSeasonResult || {},
             totalExpPoints: data.totalExpPoints || 0,
