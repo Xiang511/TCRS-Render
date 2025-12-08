@@ -192,11 +192,11 @@ table.dataTable tbody td {
     transition: all 0.3s;
 }
 
-/* table.dataTable tbody td a{
+table.dataTable tbody td a{
     color: #667eea;
     font-weight: 600;
     text-decoration: none;
-} */
+}
 
 /* Loading Overlay */
 .loading-overlay {
