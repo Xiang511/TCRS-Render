@@ -306,7 +306,7 @@ router.get('/:tag', isAuth, async function (req, res, next) {
 // Path of Legend Rankings Page
 router.get('/pathoflegend/Rankings', isAuth, async function (req, res, next) {
   try {
-    let { startRank = 1, endRank = 1000, season } = req.query;
+    let { startRank = 1, endRank = 10000, season } = req.query;
 
     // 轉換為數字
     startRank = parseInt(startRank);
