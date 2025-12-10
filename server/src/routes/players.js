@@ -13,7 +13,7 @@ router.get('/', optionalAuth, async function (req, res, next) {
 
     // 獲取所有可用的季度(不重複)
     const availableSeasons = await Player.distinct('time');
-    availableSeasons.sort().reverse(); // 最新的在前面
+    availableSeasons.sort((a, b) => new Date(b) - new Date(a)); // 按日期降序排列
 
     // 如果沒有指定季度且有可用季度,預設顯示最新季度
     if (!time && availableSeasons.length > 0) {
