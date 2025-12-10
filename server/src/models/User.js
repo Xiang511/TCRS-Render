@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const crypto = require('crypto');
+
 const userSchema = new mongoose.Schema({
     name: {
       type: String,
@@ -18,12 +20,28 @@ const userSchema = new mongoose.Schema({
       minlength: 8,
       select: false
     },
+    passwordResetToken: String,
+    passwordResetExpires: Date,
     createdAt: {
       type: Date,
       default: Date.now,
       select: true
     }
   });
+
+// 生成重設密碼 token
+userSchema.methods.createPasswordResetToken = function() {
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+  
+  this.passwordResetExpires = Date.now() + 60 * 60 * 1000; // 1 小時後過期
+  
+  return resetToken;
+};
 // User
 const User = mongoose.model('user', userSchema);
 
