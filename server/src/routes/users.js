@@ -60,6 +60,11 @@ router.post('/sign_up', async (req, res, next) => {
     if (!validator.isEmail(email)) {
         return res.json({ status: 'error', message: '您的Email格式不正確' });
     }
+    // 檢查是否已被註冊
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+        return res.json({ status: 'error', message: '此Email已被註冊' });
+    }
 
     // 加密密碼
     password = await bcrypt.hash(req.body.password, 12);
