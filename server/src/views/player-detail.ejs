@@ -119,8 +119,8 @@
         <h2 class="text-xl font-bold text-gray-800 mb-4">
           <i class='bx bx-line-chart mr-2'></i>排名歷史趨勢
         </h2>
-        <!-- <div id="rankHistoryChart"></div> -->
-        🚧 維修中
+        <div id="rankHistoryChart"></div>
+        <!-- 🚧 維修中 -->
       </div>
 
       <!-- Trophy History Chart -->
@@ -128,8 +128,8 @@
         <h2 class="text-xl font-bold text-gray-800 mb-4">
           <i class='bx bx-trending-up mr-2'></i>獎盃歷史趨勢
         </h2>
-        <!-- <div id="trophyHistoryChart"></div> -->
-        🚧 維修中
+        <div id="trophyHistoryChart"></div>
+        <!-- 🚧 維修中 -->
       </div>
     </div>
 
@@ -199,34 +199,26 @@
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">時間</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">排名</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">獎盃</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">星星點數</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">勝場</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <!-- <% history.forEach((record, index) => { %>
+            <% history.slice(0, 30).forEach((record, index) => { %>
             <tr class="<%= index === 0 ? 'bg-indigo-50' : 'hover:bg-gray-50' %>">
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <%= record.time %>
-                <% if (index === 0) { %>
-                <span class="ml-2 px-2 py-1 text-xs font-semibold rounded-full bg-indigo-600 text-white">最新</span>
-                <% } %>
+              <%= record.time %>
+              <% if (index === 0) { %>
+              <span class="ml-2 px-2 py-1 text-xs font-semibold rounded-full bg-indigo-600 text-white">最新</span>
+              <% } %>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <%= record.bestPathOfLegendSeasonResult?.rank || 'N/A' %>
+              <%= record.currentPathOfLegendSeasonResult?.rank || 'N/A' %>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <%= record.bestPathOfLegendSeasonResult?.trophies || 'N/A' %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <%= record.starPoints || 0 %>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                <%= record.wins || 0 %>
+              <%= record.currentPathOfLegendSeasonResult?.trophies || 'N/A' %>
               </td>
             </tr>
-            <% }); %> -->
-            🚧 維修中
+            <% }); %>
+            <!-- 🚧 維修中 -->
 
           </tbody>
         </table>
@@ -240,14 +232,16 @@
 
     // Process data for charts
     const times = historyData.map(h => h.time).reverse();
-    const ranks = historyData.map(h => h.bestPathOfLegendSeasonResult?.rank || null).reverse();
-    const trophies = historyData.map(h => h.bestPathOfLegendSeasonResult?.trophies || null).reverse();
+    const currentPathOfLegendSeasonResult = {
+      rank: historyData.map(h => h.currentPathOfLegendSeasonResult ? h.currentPathOfLegendSeasonResult.rank : null).reverse(),
+      trophies: historyData.map(h => h.currentPathOfLegendSeasonResult ? h.currentPathOfLegendSeasonResult.trophies : null).reverse()
+    };
 
     // Rank History Chart (ApexCharts)
     const rankChartOptions = {
       series: [{
         name: '排名',
-        data: ranks
+        data: currentPathOfLegendSeasonResult.rank || 10000
       }],
       chart: {
         type: 'line',
@@ -286,7 +280,6 @@
         }
       },
       yaxis: {
-        reversed: true, // 排名越小越好，所以反轉Y軸
         title: {
           text: '排名'
         },
@@ -307,16 +300,6 @@
         borderColor: '#e7e7e7',
         strokeDashArray: 5
       },
-      fill: {
-        type: 'gradient',
-        gradient: {
-          shade: 'light',
-          type: 'vertical',
-          shadeIntensity: 0.5,
-          opacityFrom: 0.7,
-          opacityTo: 0.3
-        }
-      }
     };
 
     const rankChart = new ApexCharts(document.querySelector("#rankHistoryChart"), rankChartOptions);
@@ -325,78 +308,68 @@
     // Trophy History Chart (ApexCharts)
     const trophyChartOptions = {
       series: [{
-        name: '獎盃',
-        data: trophies
+      name: '獎盃',
+      data: currentPathOfLegendSeasonResult.trophies || 0
       }],
       chart: {
-        type: 'bar',
-        height: 350,
-        toolbar: {
-          show: true
-        },
-        animations: {
-          enabled: true,
-          easing: 'easeinout',
-          speed: 800
-        }
+      type: 'line',
+      height: 350,
+      toolbar: {
+        show: true
       },
-      plotOptions: {
-        bar: {
-          borderRadius: 8,
-          columnWidth: '50%',
-          distributed: false,
-          dataLabels: {
-            position: 'top'
-          }
-        }
+      animations: {
+        enabled: true,
+        easing: 'easeinout',
+        speed: 800
+      }
+      },
+      stroke: {
+      curve: 'smooth',
+      width: 3
       },
       colors: ['#764ba2'],
+      markers: {
+      size: 5,
+      colors: ['#764ba2'],
+      strokeColors: '#fff',
+      strokeWidth: 2,
+      hover: {
+        size: 7
+      }
+      },
       dataLabels: {
-        enabled: false
+      enabled: false
       },
       xaxis: {
-        categories: times,
-        labels: {
-          rotate: -45,
-          rotateAlways: true,
-          style: {
-            fontSize: '12px'
-          }
+      categories: times,
+      labels: {
+        rotate: -45,
+        rotateAlways: true,
+        style: {
+        fontSize: '12px'
         }
+      }
       },
       yaxis: {
-        title: {
-          text: '獎盃數'
-        },
-        labels: {
-          formatter: function(val) {
-            return val ? Math.round(val) : 'N/A';
-          }
+      title: {
+        text: '獎盃數'
+      },
+      labels: {
+        formatter: function(val) {
+        return val ? Math.round(val) : 'N/A';
         }
+      }
       },
       tooltip: {
-        y: {
-          formatter: function(val) {
-            return val ? val + ' 獎盃' : 'N/A';
-          }
+      y: {
+        formatter: function(val) {
+        return val ? val + ' 獎盃' : 'N/A';
         }
+      }
       },
       grid: {
-        borderColor: '#e7e7e7',
-        strokeDashArray: 5
-      },
-      fill: {
-        type: 'gradient',
-        gradient: {
-          shade: 'dark',
-          type: 'vertical',
-          shadeIntensity: 0.5,
-          gradientToColors: ['#667eea'],
-          inverseColors: false,
-          opacityFrom: 0.85,
-          opacityTo: 0.85,
-          stops: [0, 100]
-        }
+      borderColor: '#e7e7e7',
+      strokeDashArray: 5
       }
     };
 
