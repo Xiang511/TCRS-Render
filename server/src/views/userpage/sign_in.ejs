@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/css/auth.css">
   <link rel="stylesheet" href="/css/background.css">
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 
 <body>
@@ -58,14 +59,7 @@
               <i class='bx bx-envelope'></i>
               電子郵件
             </label>
-            <input 
-              type="email" 
-              id="email" 
-              name="email" 
-              placeholder="username@example.com"
-              required
-              autocomplete="email"
-            >
+            <input type="email" id="email" name="email" placeholder="username@example.com" required autocomplete="email">
             <span class="error-message" id="emailError"></span>
           </div>
 
@@ -76,14 +70,7 @@
               密碼
             </label>
             <div class="password-input-wrapper">
-              <input 
-                type="password" 
-                id="password" 
-                name="password" 
-                placeholder=""
-                required
-                autocomplete="current-password"
-              >
+              <input type="password" id="password" name="password" placeholder="" required autocomplete="current-password">
               <button type="button" class="toggle-password" onclick="togglePassword()">
                 <i class='bx bx-show' id="toggleIcon"></i>
               </button>
@@ -100,6 +87,7 @@
             <a href="/users/forgot-password" class="forgot-link">忘記密碼?</a>
           </div>
 
+          <div class="cf-turnstile"  data-sitekey="0x4AAAAAACFwOCHnfT-MLBpN" data-theme="light" data-size="normal" data-callback="onSuccess"></div>
           <!-- Submit Button -->
           <button type="submit" class="btn-submit" id="submitBtn">
             <span class="btn-text">登入</span>
@@ -146,7 +134,7 @@
     function togglePassword() {
       const passwordInput = document.getElementById('password');
       const toggleIcon = document.getElementById('toggleIcon');
-      
+
       if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
         toggleIcon.classList.remove('bx-show');
@@ -162,11 +150,11 @@
     document.getElementById('signInForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       let isValid = true;
-      
+
       // 清除之前的錯誤
       document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
       document.querySelectorAll('.form-group').forEach(el => el.classList.remove('error'));
-      
+
       // Email 驗證
       const email = document.getElementById('email');
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -177,7 +165,7 @@
         showError('email', '請輸入有效的電子郵件格式');
         isValid = false;
       }
-      
+
       // Password 驗證
       const password = document.getElementById('password');
       if (!password.value) {
@@ -187,16 +175,16 @@
         showError('password', '密碼長度至少需要 6 個字元');
         isValid = false;
       }
-      
+
       if (!isValid) {
         return false;
       }
-      
+
       // 顯示載入動畫
       const submitBtn = document.getElementById('submitBtn');
       const btnText = submitBtn.querySelector('.btn-text');
       const btnLoader = submitBtn.querySelector('.btn-loader');
-      
+
       btnText.style.display = 'none';
       btnLoader.style.display = 'block';
       submitBtn.disabled = true;
@@ -224,7 +212,7 @@
           } else {
             localStorage.removeItem('rememberedEmail');
           }
-          
+
           // 重定向到首頁
           window.location.href = data.redirect || '/';
         } else {
@@ -241,11 +229,11 @@
         submitBtn.disabled = false;
       }
     });
-    
+
     function showError(fieldId, message) {
       const errorElement = document.getElementById(fieldId + 'Error');
       const formGroup = document.getElementById(fieldId).closest('.form-group');
-      
+
       errorElement.textContent = message;
       formGroup.classList.add('error');
     }
