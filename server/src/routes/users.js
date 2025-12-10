@@ -148,7 +148,7 @@ router.post('/auth/forgot-password', async (req, res) => {
     let user;
     try {
         const { email } = req.body;
-        
+
         if (!email) {
             return res.status(400).json({ status: 'error', message: '請提供電子郵件地址' });
         }
@@ -157,9 +157,9 @@ router.post('/auth/forgot-password', async (req, res) => {
         user = await User.findOne({ email });
         if (!user) {
             // 為了安全起見，即使用戶不存在也返回成功訊息
-            return res.status(200).json({ 
-                status: 'success', 
-                message: '如果該電子郵件已註冊，您將收到重設密碼連結' 
+            return res.status(200).json({
+                status: 'success',
+                message: '如果該電子郵件已註冊，您將收到重設密碼連結'
             });
         }
 
@@ -169,21 +169,10 @@ router.post('/auth/forgot-password', async (req, res) => {
 
         // 發送郵件
         const nodemailer = require("nodemailer");
-        
+
         let transporter;
-        
-        // 優先使用簡單的 SMTP（如果有設定 EMAIL_PASS）
-        if (process.env.EMAIL_PASS) {
-            transporter = nodemailer.createTransport({
-                service: "gmail",
-                auth: {
-                    user: process.env.EMAIL_USER || "xiangtcrs@gmail.com",
-                    pass: process.env.EMAIL_PASS
-                },
-            });
-        } 
-        // 否則使用 OAuth2（如果有完整配置）
-        else if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_REFRESH_TOKEN) {
+
+        if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_REFRESH_TOKEN) {
             transporter = nodemailer.createTransport({
                 service: "gmail",
                 auth: {
@@ -194,7 +183,7 @@ router.post('/auth/forgot-password', async (req, res) => {
                     refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
                 },
             });
-        } 
+        }
         else {
             throw new Error('郵件服務未配置，請設定 EMAIL_PASS 或完整的 OAuth2 憑證');
         }
@@ -231,13 +220,13 @@ router.post('/auth/forgot-password', async (req, res) => {
             `
         });
 
-        res.status(200).json({ 
-            status: 'success', 
-            message: '重設密碼連結已發送到您的電子郵件' 
+        res.status(200).json({
+            status: 'success',
+            message: '重設密碼連結已發送到您的電子郵件'
         });
     } catch (error) {
         console.error('發送重設密碼郵件錯誤:', error);
-        
+
         // 清除 token（只在 user 已定義時）
         if (user) {
             try {
@@ -248,10 +237,10 @@ router.post('/auth/forgot-password', async (req, res) => {
                 console.error('清除 token 錯誤:', saveError);
             }
         }
-        
-        res.status(500).json({ 
-            status: 'error', 
-            message: '發送郵件時發生錯誤，請稍後再試' 
+
+        res.status(500).json({
+            status: 'error',
+            message: '發送郵件時發生錯誤，請稍後再試'
         });
     }
 });
@@ -270,7 +259,7 @@ router.get('/resetPassword/:token', async (req, res) => {
         });
 
         if (!user) {
-            return res.render('userpage/error', { 
+            return res.render('userpage/error', {
                 message: '重設密碼連結無效或已過期',
                 redirectUrl: '/users/forgotPassword',
                 redirectText: '重新申請重設密碼'
@@ -280,7 +269,7 @@ router.get('/resetPassword/:token', async (req, res) => {
         res.render('userpage/resetpassword', { token: req.params.token });
     } catch (error) {
         console.error('重設密碼頁面錯誤:', error);
-        res.render('userpage/error', { 
+        res.render('userpage/error', {
             message: '發生錯誤，請稍後再試',
             redirectUrl: '/users/forgotPassword',
             redirectText: '返回'
@@ -318,9 +307,9 @@ router.post('/resetPassword/:token', async (req, res) => {
         });
 
         if (!user) {
-            return res.status(400).json({ 
-                status: 'error', 
-                message: '重設密碼連結無效或已過期' 
+            return res.status(400).json({
+                status: 'error',
+                message: '重設密碼連結無效或已過期'
             });
         }
 
@@ -332,21 +321,21 @@ router.post('/resetPassword/:token', async (req, res) => {
 
         // 生成新的 JWT
         const token = generateSendJWT(user);
-        res.cookie('jwt', token, { 
-            httpOnly: true, 
-            secure: process.env.NODE_ENV === 'production' 
+        res.cookie('jwt', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production'
         });
 
-        res.status(200).json({ 
-            status: 'success', 
+        res.status(200).json({
+            status: 'success',
             message: '密碼重設成功！',
             redirect: '/users/profile'
         });
     } catch (error) {
         console.error('重設密碼錯誤:', error);
-        res.status(500).json({ 
-            status: 'error', 
-            message: '重設密碼時發生錯誤，請稍後再試' 
+        res.status(500).json({
+            status: 'error',
+            message: '重設密碼時發生錯誤，請稍後再試'
         });
     }
 });
