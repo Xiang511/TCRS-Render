@@ -178,6 +178,8 @@
       <thead>
         <tr>
           <th>名稱</th>
+          <th>當前排名</th>
+          <th>當前杯數</th>
           <th>最佳排名</th>
           <th>最佳杯數</th>
           <th>上季排名</th>
@@ -189,6 +191,8 @@
         <% players.forEach(function(player) { %>
         <tr>
           <td><a href="/players/<%= player.tag.substring(1) %>"><%= player.name %></a> </td>
+          <td><%= player.currentPathOfLegendSeasonResult.rank || 10000 %></td>
+          <td><%= player.currentPathOfLegendSeasonResult.trophies || 0 %></td>
           <td><%= player.bestPathOfLegendSeasonResult.rank || 10000 %></td>
           <td><%= player.bestPathOfLegendSeasonResult.trophies || 0 %></td>
           <td><%= player.lastPathOfLegendSeasonResult.rank || 10000 %></td>
