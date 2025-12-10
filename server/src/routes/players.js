@@ -55,7 +55,7 @@ router.get('/leaderboard', optionalAuth, async function (req, res, next) {
 
     // 獲取所有可用的季度(不重複)
     const availableSeasons = await Player.distinct('time');
-    availableSeasons.sort().reverse(); // 最新的在前面
+    availableSeasons.sort((a, b) => new Date(b) - new Date(a)); // 按日期降序排列
 
     // 如果沒有指定季度且有可用季度,預設顯示最新季度
     if (!time && availableSeasons.length > 0) {
@@ -69,6 +69,13 @@ router.get('/leaderboard', optionalAuth, async function (req, res, next) {
 
     // 獲取玩家資料並按星星點數排序
     const players = await Player.find(filter);
+
+    players.forEach(player => {
+      if (player.currentPathOfLegendSeasonResult.rank > 0 && player.currentPathOfLegendSeasonResult.trophies == 0) {
+        player.currentPathOfLegendSeasonResult.rank = 0;
+        player.currentPathOfLegendSeasonResult.trophies = 0;
+      }
+    })
 
     const Pageviews = await pageviews.find({ path: '/players/leaderboard' });
 
@@ -97,7 +104,7 @@ router.get('/badges', optionalAuth, async function (req, res, next) {
 
     // 獲取所有可用的季度(不重複)
     const availableSeasons = await Player.distinct('time');
-    availableSeasons.sort().reverse(); // 最新的在前面
+    availableSeasons.sort((a, b) => new Date(b) - new Date(a)); // 按日期降序排列
 
     // 如果沒有指定季度且有可用季度,預設顯示最新季度
     if (!time && availableSeasons.length > 0) {
@@ -200,6 +207,8 @@ router.get('/:tag', isAuth, async function (req, res, next) {
     const playerHistory = await Player.find({
       tag: '#' + playerTag
     }).sort({ time: -1 });
+
+    playerHistory.sort((a, b) => new Date(b.time) - new Date(a.time)); // 按日期降序排列
 
     // 如果找不到該玩家
     if (!playerHistory || playerHistory.length === 0) {
