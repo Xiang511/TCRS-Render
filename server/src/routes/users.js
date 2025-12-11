@@ -167,58 +167,45 @@ router.post('/auth/forgot-password', async (req, res) => {
         const resetToken = user.createPasswordResetToken();
         await user.save({ validateBeforeSave: false });
 
-        // 發送郵件
-        const nodemailer = require("nodemailer");
+        async function sendEmailWithEmailJS(toEmail, userName, resetURL) {
+            const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
-        let transporter;
+            const templateParams = {
+                email: toEmail,
+                user_name: userName,
+                reset_url: resetURL,
+                from_name: 'TCRS',
+            };
 
-        if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_REFRESH_TOKEN) {
-            transporter = nodemailer.createTransport({
-                service: "gmail",
-                auth: {
-                    type: "OAuth2",
-                    user: process.env.MY_EMAIL || "xiangtcrs@gmail.com",
-                    clientId: process.env.GOOGLE_CLIENT_ID,
-                    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-                    refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
+            const data = {
+                service_id: process.env.EMAILJS_SERVICE_ID,
+                template_id: process.env.EMAILJS_TEMPLATE_ID,
+                user_id: process.env.EMAILJS_PUBLIC_KEY,
+                accessToken: process.env.EMAILJS_PRIVATE_KEY,
+                template_params: templateParams
+            };
+
+            const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
                 },
+                body: JSON.stringify(data)
             });
-        }
-        else {
-            throw new Error('郵件服務未配置，請設定 EMAIL_PASS 或完整的 OAuth2 憑證');
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`EmailJS API error: ${response.status} - ${errorText}`);
+            }
+
+            return response;
         }
 
         const resetURL = `${req.protocol}://${req.get('host')}/users/resetPassword/${resetToken}`;
 
-        await transporter.sendMail({
-            from: 'TCRS <xiangtcrs@gmail.com>',
-            to: user.email,
-            subject: 'TCRS - 重設密碼請求',
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; text-align: center;">
-                        <h1 style="color: white; margin: 0;">TCRS</h1>
-                    </div>
-                    <div style="padding: 30px; background: #f9f9f9;">
-                        <h2 style="color: #333;">重設密碼請求</h2>
-                        <p>親愛的 ${user.name}，</p>
-                        <p>我們收到了您的重設密碼請求。請點擊以下按鈕來重設您的密碼：</p>
-                        <div style="text-align: center; margin: 30px 0;">
-                            <a href="${resetURL}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">重設密碼</a>
-                        </div>
-                        <p>或者複製以下連結到瀏覽器：</p>
-                        <p style="word-break: break-all; color: #667eea;">${resetURL}</p>
-                        <p style="color: #999; font-size: 14px; margin-top: 30px;">
-                            ⚠️ 此連結將在 1 小時後失效<br/>
-                            如果您沒有請求重設密碼，請忽略此郵件
-                        </p>
-                    </div>
-                    <div style="background: #333; color: white; padding: 20px; text-align: center; font-size: 12px;">
-                        <p style="margin: 0;">© 2025 TCRS. All rights reserved.</p>
-                    </div>
-                </div>
-            `
-        });
+        await sendEmailWithEmailJS(user.email, user.name, resetURL);
+
+        console.log('✅ 郵件通過 EmailJS 發送成功');
 
         res.status(200).json({
             status: 'success',
