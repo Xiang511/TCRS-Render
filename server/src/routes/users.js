@@ -345,17 +345,9 @@ passport.use(new GoogleStrategy({
             let user = await User.findOne({ email: profile.emails[0].value });
 
             if (user) {
-                // 如果 email 已存在，更新 googleId
-                user.googleId = profile.id;
-                user.name = profile.displayName;
-                await user.save();
+                res.error('此 Email 已存在，請使用找回密碼功能登入');
             } else {
-                // 如果 email 不存在，創建新用戶
-                user = await User.create({
-                    googleId: profile.id,
-                    name: profile.displayName,
-                    email: profile.emails[0].value,
-                });
+                User.findOneAndUpdate({ googleId: profile.id }, { name: profile.displayName, email: profile.emails[0].value }, { upsert: true, new: true });
             }
 
             return cb(null, user);
