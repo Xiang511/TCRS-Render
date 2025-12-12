@@ -331,7 +331,6 @@ router.post('/resetPassword/:token', async (req, res) => {
 
 // google OAuth 登入
 const passport = require('passport');
-
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 passport.use(new GoogleStrategy({
@@ -345,28 +344,74 @@ passport.use(new GoogleStrategy({
             let user = await User.findOne({ email: profile.emails[0].value });
 
             if (user) {
-                res.error('此 Email 已存在，請使用找回密碼功能登入');
+                // 如果 email 已存在，檢查是否有 googleId
+                if (!user.googleId) {
+                    // Email 存在但沒有 googleId，表示是用密碼註冊的
+                    return cb(null, false, { 
+                        message: '此 Email 已存在，請使用密碼登入或找回密碼' 
+                    });
+                }
+                // Email 存在且有 googleId，直接登入
+                return cb(null, user);
             } else {
-                User.findOneAndUpdate({ googleId: profile.id }, { name: profile.displayName, email: profile.emails[0].value }, { upsert: true, new: true });
+                // Email 不存在，創建新用戶
+                const newUser = await User.findOneAndUpdate(
+                    { googleId: profile.id }, 
+                    { 
+                        name: profile.displayName, 
+                        email: profile.emails[0].value 
+                    }, 
+                    { upsert: true, new: true }
+                );
+                return cb(null, newUser);
             }
-
-            return cb(null, user);
         } catch (error) {
             console.error('Google OAuth 錯誤:', error);
             return cb(error, null);
         }
     }
-)
-);
+));
 
+// 開始 Google OAuth 流程
 router.get('/google', passport.authenticate('google', {
     scope: ['email', 'profile'],
 }));
 
+// Google OAuth 回調路由 - 使用自定義回調
+router.get('/auth/google/callback', (req, res, next) => {
+    passport.authenticate('google', { session: false }, (err, user, info) => {
+        // 1. 處理伺服器錯誤
+        if (err) {
+            console.error('Google OAuth 錯誤:', err);
+            return res.status(500).json({
+                status: 'error',
+                message: '伺服器錯誤，請稍後再試'
+            });
+        }
 
-router.get('/auth/google/callback', passport.authenticate('google', { session: false }), (req, res) => {
-    const token = generateSendJWT(req.user);
-    res.cookie('jwt', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
-    res.redirect('/users/profile');
-})
+        // 2. 處理用戶未通過驗證（包含 email 已存在的情況）
+        if (!user) {
+            const errorMessage = info && info.message 
+                ? info.message 
+                : 'Google 登入失敗，請稍後再試';
+            
+            // 可以重定向到錯誤頁面或返回 JSON
+            return res.status(400).json({
+                status: 'error',
+                message: errorMessage
+            });
+            
+            // 或者重定向到登入頁面並顯示錯誤
+            // return res.redirect(`/users/sign_in?error=${encodeURIComponent(errorMessage)}`);
+        }
+
+        // 3. 用戶通過驗證，生成 JWT 並設置 cookie
+        const token = generateSendJWT(user);
+        res.cookie('jwt', token, { 
+            httpOnly: true, 
+            secure: process.env.NODE_ENV === 'production' 
+        });
+        res.redirect('/users/profile');
+    })(req, res, next);
+});
 module.exports = router;
