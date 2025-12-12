@@ -1,3 +1,4 @@
+var dotenv = require('dotenv');
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
@@ -5,7 +6,7 @@ const crypto = require('crypto');
 const User = require('../models/User');
 const { isAuth, generateSendJWT } = require('../middleware/auth');
 const router = express.Router();
-
+dotenv.config({ path: './config.env' });
 
 router.get('/logout', isAuth, (req, res) => {
     res.cookie('jwt', '', { maxAge: 1 }); // 清除 cookie
@@ -328,4 +329,31 @@ router.post('/resetPassword/:token', async (req, res) => {
 });
 
 
+// google OAuth 登入
+const passport = require('passport');
+
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: process.env.GOOGLE_CALLBACK_URL
+},
+    (accessToken, refreshToken, profile, cb) => {
+        User.findOneAndUpdate({ googleId: profile.id }, { name: profile.displayName, email: profile.emails[0].value }, { upsert: true, new: true }).then((user) => {
+            return cb(null, user);
+        });
+    }
+));
+
+router.get('/google', passport.authenticate('google', {
+    scope: ['email', 'profile'],
+}));
+
+
+router.get('/auth/google/callback', passport.authenticate('google', { session: false }), (req, res) => {
+    const token = generateSendJWT(req.user);
+    res.cookie('jwt', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+    res.redirect('/users/profile');
+})
 module.exports = router;
