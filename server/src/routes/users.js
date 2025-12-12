@@ -339,12 +339,33 @@ passport.use(new GoogleStrategy({
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: process.env.GOOGLE_CALLBACK_URL
 },
-    (accessToken, refreshToken, profile, cb) => {
-        User.findOneAndUpdate({ googleId: profile.id }, { name: profile.displayName, email: profile.emails[0].value }, { upsert: true, new: true }).then((user) => {
+    async (accessToken, refreshToken, profile, cb) => {
+        try {
+            // 檢查 email 是否已存在
+            let user = await User.findOne({ email: profile.emails[0].value });
+
+            if (user) {
+                // 如果 email 已存在，更新 googleId
+                user.googleId = profile.id;
+                user.name = profile.displayName;
+                await user.save();
+            } else {
+                // 如果 email 不存在，創建新用戶
+                user = await User.create({
+                    googleId: profile.id,
+                    name: profile.displayName,
+                    email: profile.emails[0].value,
+                });
+            }
+
             return cb(null, user);
-        });
+        } catch (error) {
+            console.error('Google OAuth 錯誤:', error);
+            return cb(error, null);
+        }
     }
-));
+)
+);
 
 router.get('/google', passport.authenticate('google', {
     scope: ['email', 'profile'],
