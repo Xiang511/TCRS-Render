@@ -23,6 +23,10 @@ router.post('/sign_in', async (req, res, next) => {
         return res.json({ status: 'error', message: '帳號密碼不可為空' });
     }
     const user = await User.findOne({ email }).select('+password');
+    const isgoogleoauth = await User.findOne({ email, googleId: { $exists: true } });
+    if (isgoogleoauth) {
+        return res.json({ status: 'error', message: '此帳號為 Google OAuth 註冊，請使用 Google 登入' });
+    }
     if (!user) {
         return res.json({ status: 'error', message: '帳號或密碼錯誤' });
     }

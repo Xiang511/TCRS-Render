@@ -1,0 +1,125 @@
+# TCRS (Taiwan ClashRoyale Ranking System)
+![GitHub last commit](https://img.shields.io/github/last-commit/Xiang511/TCRS-Render?display_timestamp=committer&style=flat-square) ![GitHub commit activity](https://img.shields.io/github/commit-activity/y/Xiang511/TCRS-Render?style=flat-square) ![GitHub Created At](https://img.shields.io/github/created-at/Xiang511/TCRS-Render?style=flat-square) ![GitHub License](https://img.shields.io/github/license/Xiang511/TCRS-Render?style=flat-square)
+
+一個專為 Clash Royale 玩家設計的統計分析平台，提供台灣地區傳奇之路排名、Rating 分析、生涯紀錄統計等功能。
+
+
+## Features
+
+#### 帳號功能
+- **傳統帳號登入**：Email + Password (JWT)
+- **第三方登入**：使用 Google 帳號登入 (OAuth2.0)
+
+#### 排名功能
+- **排行榜**：
+    1. 天梯資訊(當前、最佳、 上一賽季)
+    2. 生涯資訊(經驗、勝場、戰鬥次數等等)
+    3. 徽章資訊(表情收集、經典12勝次數，20勝挑戰等等)
+- **分析圖表**：
+  1. **排名攀升難度**（多線圖）：分析不同排名區間的 Rating 增長曲線
+  2. **排名密度分析**（長條圖）：了解各排名區間的競爭激烈程度
+  3. **Rating 成長率**（面積圖）：觀察排名提升所需的 Rating 增長幅度
+- **個人頁面**：顯示玩家所有資訊
+- **賽季篩選**：選擇不同賽季查看歷史資料
+- **比對功能**：比對不同玩家的遊戲資料
+- **定時更新**：每日中午 12:00 從 `ClashRoyaleAPI` 取得最新資訊
+
+
+## Screenshots
+
+#### 帳號認證
+支援傳統登入和 Google OAuth
+
+![alt text](.github/assets/image.png)
+
+### 排行榜資訊
+天梯、生涯、徽章資訊
+
+![alt text](.github/assets/image-1.png)
+#### 排名分析頁面
+展示 3 種分析圖表，提供全方位的 Rating 分析
+
+![alt text](.github/assets/image-2.png)
+
+
+## Tech stack
+
+#### 畫面渲染
+- **EJS**：伺服器端模板引擎
+- **ApexCharts**：互動式圖表庫
+- **Tailwind CSS**：CSS 框架
+- **Boxicons**：圖示庫
+
+#### 框架以及資料庫
+- **Node.js** + **Express.js**：Web 應用框架
+- **MongoDB** + **Mongoose**：NoSQL 資料庫與 ODM
+
+#### 用戶認證
+- **JWT**：用戶認證與授權
+- **Passport.js**：Google OAuth 2.0 
+- **Nodemailer**：Email 發送服務（Gmail SMTP）
+- **EmailJS**：Email 發送服務
+- **bcryptjs**：密碼加密
+
+### 外部服務
+- **Clash Royale API**：官方遊戲資料 API
+
+#### 部屬平台
+- **Render.com**：雲端託管平台
+
+
+
+## Database Schema
+
+### User Collection
+```javascript
+{
+  name: String,           // 用戶名稱
+  email: String,          // Email（唯一）
+  password: String,       // 加密密碼
+  googleId: String,       // Google OAuth ID
+  passwordResetToken: String,      // 密碼重設 Token
+  passwordResetExpires: Date,      // Token 過期時間
+  createdAt: Date         // 創建時間
+}
+```
+
+### Pathoflegend Collection
+```javascript
+{
+  tag: String,           // 玩家標籤
+  rank: Number,          // 排名
+  eloRating: Number,     // Rating 分數
+  season: String,        // 賽季（格式：YYYY-MM）
+  clan: {
+    tag: String,
+    name: String
+  },
+  lastUpdate: Date       // 最後更新時間
+}
+```
+
+## API 
+
+#### 認證相關
+- `POST /users/sign_up` - 用戶註冊
+- `POST /users/sign_in` - 用戶登入
+- `GET /users/logout` - 用戶登出
+- `POST /users/forgotPassword` - 發送密碼重設郵件
+- `POST /users/resetPassword/:token` - 重設密碼
+- `GET /users/google` - Google OAuth 登入
+- `GET /users/auth/google/callback` - Google OAuth 回調
+
+#### 玩家資料
+- `GET /players/:tag` - 玩家資訊頁面
+- `GET /players/pathoflegend/Rankings` - Path of Legend 排名分析頁面
+
+
+## License
+
+本專案採用 Apache-2.0 授權條款 
+
+
+
+
+
