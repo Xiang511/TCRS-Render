@@ -1,6 +1,6 @@
 $(document).ready(function () {
     let table = new DataTable('#myTable', {
-        order: [[2, 'desc']],
+        order: [[3, 'desc']],
         info: false,
         processing: true,
         colReorder: true,
@@ -25,16 +25,21 @@ $(document).ready(function () {
             emptyTable: "目前沒有資料",
             zeroRecords: "沒有符合的資料"
         },
-        initComplete: function() {
+        initComplete: function () {
             // DataTable 初始化完成後隱藏載入動畫和骨架屏
             $('#loadingOverlay').fadeOut(300);
-            $('#skeletonScreen').fadeOut(300, function() {
+            $('#skeletonScreen').fadeOut(300, function () {
                 $('#myTable').fadeIn(300);
             });
         }
     });
+    table.on('order.dt search.dt', function () {
+        table.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
+            cell.innerHTML = i + 1;
+        });
+    }).draw();
 
-    
+
 });
 
 //即時查詢總人數
