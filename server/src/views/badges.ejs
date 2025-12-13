@@ -172,6 +172,7 @@
     <table id="myTable" class="display" style="display: none;">
       <thead>
         <tr>
+          <th></th>
           <th>名稱</th>
           <th>戰旗收集</th>
           <th>表情收集</th>
@@ -192,6 +193,7 @@
       <tbody>
         <% players.forEach(function(player) { %>
         <tr>
+          <th></th>
           <td><a href="/players/<%= player.tag.substring(1) %>"><%= player.name %></a> </td>
           <td><%= player.badges.BannerCollection.progress || 0 %></td>
           <td><%= player.badges.EmoteCollection.progress || 0 %></td>
