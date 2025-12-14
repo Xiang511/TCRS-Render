@@ -38,7 +38,7 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/javascripts', express.static(path.join(__dirname, 'javascripts')));
 app.set('view engine', 'ejs'); // 設置 EJS 為視圖引擎
 
-app.use(cors());
+// app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
