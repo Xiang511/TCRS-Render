@@ -75,6 +75,10 @@ router.get('/leaderboard', optionalAuth, async function (req, res, next) {
         player.currentPathOfLegendSeasonResult.rank = 0;
         player.currentPathOfLegendSeasonResult.trophies = 0;
       }
+      if (player.currentPathOfLegendSeasonResult.rank == player.lastPathOfLegendSeasonResult.rank) {
+        player.currentPathOfLegendSeasonResult.rank = 0;
+        player.currentPathOfLegendSeasonResult.trophies = 0;
+      }
     })
 
     const Pageviews = await pageviews.find({ path: '/players/leaderboard' });
