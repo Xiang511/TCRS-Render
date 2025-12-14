@@ -3,10 +3,66 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const crypto = require('crypto');
+const rateLimit = require('express-rate-limit');
 const User = require('../models/User');
 const { isAuth, generateSendJWT } = require('../middleware/auth');
 const router = express.Router();
 dotenv.config({ path: './config.env' });
+
+// ========== 忘記密碼速率限制設定 ==========
+const forgotPasswordLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 分鐘
+    max: 3, // 最多 3 次請求
+    message: {
+        status: 'error',
+        message: '請求過於頻繁，請 15 分鐘後再試'
+    },
+    standardHeaders: true, // 返回 RateLimit-* headers
+    legacyHeaders: false, // 禁用 X-RateLimit-* headers
+    handler: (req, res) => {
+        res.status(429).json({
+            status: 'error',
+            message: '您已超過請求次數限制，請 15 分鐘後再試',
+            retryAfter: Math.ceil(req.rateLimit.resetTime / 1000 / 60) // 分鐘
+        });
+    },
+    skip: (req, res) => {
+        // 可選：跳過特定條件（例如管理員）
+        return false;
+    }
+});
+
+
+// ========== Google OAuth 速率限制 ==========
+const googleAuthLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 分鐘
+    max: 5, // 最多 5 次請求
+    message: {
+        status: 'error',
+        message: 'Google 登入請求過於頻繁，請稍後再試'
+    }
+});
+
+// ========== 登入速率限制 ==========
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 分鐘
+    max: 5, // 最多 5 次嘗試
+    message: {
+        status: 'error',
+        message: '登入嘗試次數過多，請 15 分鐘後再試'
+    },
+    skipSuccessfulRequests: true // 登入成功時不計入限制
+});
+
+// ========== 註冊速率限制 ==========
+const signupLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 小時
+    max: 2, // 最多 2 次註冊
+    message: {
+        status: 'error',
+        message: '註冊請求過於頻繁，請 1 小時後再試'
+    }
+});
 
 router.get('/logout', isAuth, (req, res) => {
     res.cookie('jwt', '', { maxAge: 1 }); // 清除 cookie
@@ -17,22 +73,22 @@ router.get('/sign_in', (req, res) => {
     res.render('userpage/sign_in');
 });
 
-router.post('/sign_in', async (req, res, next) => {
+router.post('/sign_in',loginLimiter, async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
-        return res.json({ status: 'error', message: '帳號密碼不可為空' });
+        return res.status(400).json({ status: 'error', message: '帳號密碼不可為空' });
     }
     const user = await User.findOne({ email }).select('+password');
     const isgoogleoauth = await User.findOne({ email, googleId: { $exists: true } });
     if (isgoogleoauth) {
-        return res.json({ status: 'error', message: '此帳號為 Google OAuth 註冊，請使用 Google 登入' });
+        return res.status(400).json({ status: 'error', message: '此帳號為 Google OAuth 註冊，請使用 Google 登入' });
     }
     if (!user) {
-        return res.json({ status: 'error', message: '帳號或密碼錯誤' });
+        return res.status(400).json({ status: 'error', message: '帳號或密碼錯誤' });
     }
     const auth = await bcrypt.compare(password, user.password);
     if (!auth) {
-        return res.json({ status: 'error', message: '帳號或密碼錯誤' });
+        return res.status(400).json({ status: 'error', message: '帳號或密碼錯誤' });
     }
     const token = generateSendJWT(user); // 生成 JWT
     res.cookie('jwt', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' }); // 設置 cookie
@@ -48,7 +104,7 @@ router.get('/sign_up', (req, res) => {
     res.render('userpage/sign_up',);
 });
 
-router.post('/sign_up', async (req, res, next) => {
+router.post('/sign_up',signupLimiter ,async (req, res, next) => {
     let { email, password, confirmPassword, name } = req.body;
     // 內容不可為空
     if (!email || !password || !confirmPassword || !name) {
@@ -149,7 +205,7 @@ router.get('/forgotPassword', (req, res) => {
 });
 
 // 發送重設密碼郵件 (API路由)
-router.post('/auth/forgot-password', async (req, res) => {
+router.post('/auth/forgot-password', forgotPasswordLimiter, async (req, res) => {
     let user;
     try {
         const { email } = req.body;
@@ -377,7 +433,7 @@ passport.use(new GoogleStrategy({
 ));
 
 // 開始 Google OAuth 流程
-router.get('/google', passport.authenticate('google', {
+router.get('/google', googleAuthLimiter, passport.authenticate('google', {
     scope: ['email', 'profile'],
 }));
 
