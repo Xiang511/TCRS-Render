@@ -179,6 +179,7 @@
           <th>經驗</th>
           <th>勝場</th>
           <th>榮耀之路</th>
+          <th>合成奇兵</th>
           <th>戰鬥次數</th>
           <th>三冠次數</th>
           <th>聯賽次數</th>
@@ -196,6 +197,7 @@
           <td><%= player.expLevel %></td>
           <td><%= player.wins %></td>
           <td><%= player.leagueStatistics.currentSeason.trophies || 0 %></td>
+          <td><%= autochessTrophies[players.indexOf(player)] || 0 %></td>
           <td><%= player.battleCount %></td>
           <td><%= player.threeCrownWins %></td>
           <td><%= player.tournamentBattleCount %></td>

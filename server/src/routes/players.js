@@ -30,24 +30,41 @@ router.get('/', optionalAuth, async function (req, res, next) {
 
     const Pageviews = await pageviews.find({ path: '/players' });
 
-    res.render('players', {
-      title: '生涯資料排行榜',
-      message: 'success',
-      players: players,
-      availableSeasons: availableSeasons,
-      currentSeason: time || '',
-      Pageviews: Pageviews,
-      user: req.user
+    const playersData = players.map(player => {
+      const playerObj = player.toObject();
+
+      // 轉換 progress Map
+      if (playerObj.progress instanceof Map) {
+        playerObj.progress = Object.fromEntries(playerObj.progress);
+      }
+
+      // 轉換 badges Map（如果需要）
+      if (playerObj.badges instanceof Map) {
+        playerObj.badges = Object.fromEntries(playerObj.badges);
+      }
+
+      return playerObj;
     });
-  } catch (error) {
-    console.error('獲取玩家列表失敗:', error);
-    res.status(500).render('error', {
-      statusCode: 500,
-      title: '伺服器錯誤',
-      message: '系統發生錯誤，請稍後再試或聯繫管理員。'
-    });
-  }
-});
+
+      res.render('players', {
+        title: '生涯資料排行榜',
+        message: 'success',
+        players: players,
+        availableSeasons: availableSeasons,
+        currentSeason: time || '',
+        Pageviews: Pageviews,
+        user: req.user,
+        autochessTrophies: playersData.map(p => p.progress?.AutoChess_2025_Dec?.trophies || 0)
+      });
+    } catch (error) {
+      console.error('獲取玩家列表失敗:', error);
+      res.status(500).render('error', {
+        statusCode: 500,
+        title: '伺服器錯誤',
+        message: '系統發生錯誤，請稍後再試或聯繫管理員。'
+      });
+    }
+  });
 
 router.get('/leaderboard', optionalAuth, async function (req, res, next) {
   try {
