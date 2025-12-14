@@ -218,6 +218,8 @@
         } else {
           // 顯示錯誤訊息
           showError('password', data.message || '登入失敗');
+          const passwordInput = document.getElementById('password');
+          passwordInput.value = '';
           btnText.style.display = 'block';
           btnLoader.style.display = 'none';
           submitBtn.disabled = false;
