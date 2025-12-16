@@ -61,43 +61,12 @@
 - **EmailJS**：Email 發送服務
 - **bcryptjs**：密碼加密
 
-### 外部服務
+#### 外部服務
 - **Clash Royale API**：官方遊戲資料 API
 
 #### 部屬平台
 - **Render.com**：雲端託管平台
 
-
-
-## Database Schema
-
-### User Collection
-```javascript
-{
-  name: String,           // 用戶名稱
-  email: String,          // Email（唯一）
-  password: String,       // 加密密碼
-  googleId: String,       // Google OAuth ID
-  passwordResetToken: String,      // 密碼重設 Token
-  passwordResetExpires: Date,      // Token 過期時間
-  createdAt: Date         // 創建時間
-}
-```
-
-### Pathoflegend Collection
-```javascript
-{
-  tag: String,           // 玩家標籤
-  rank: Number,          // 排名
-  eloRating: Number,     // Rating 分數
-  season: String,        // 賽季（格式：YYYY-MM）
-  clan: {
-    tag: String,
-    name: String
-  },
-  lastUpdate: Date       // 最後更新時間
-}
-```
 
 ## API 
 
