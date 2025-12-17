@@ -92,7 +92,7 @@ router.get('/leaderboard', optionalAuth, async function (req, res, next) {
         player.currentPathOfLegendSeasonResult.rank = 0;
         player.currentPathOfLegendSeasonResult.trophies = 0;
       }
-      if (player.currentPathOfLegendSeasonResult.rank == player.lastPathOfLegendSeasonResult.rank) {
+      if (player.currentPathOfLegendSeasonResult.leagueNumber != 7) {
         player.currentPathOfLegendSeasonResult.rank = 0;
         player.currentPathOfLegendSeasonResult.trophies = 0;
       }
