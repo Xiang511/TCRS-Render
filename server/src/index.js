@@ -75,15 +75,18 @@ app.get('/', optionalAuth, (req, res) => {
   res.render('index', {
     title: 'TCRS Server',
     message: '這是測試首頁!',
-    user: req.user
+    user: req.user,
+    Pageviews: null 
   });
 }
 );
+
 app.get('/joinus',optionalAuth, (req, res) => {
   res.render('joinus', {
     title: 'TCRS Server',
     message: '這是測試首頁!',
-    user: req.user
+    user: req.user,
+    Pageviews: null 
   });
 });
 

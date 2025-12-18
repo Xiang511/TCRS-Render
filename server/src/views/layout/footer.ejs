@@ -1,0 +1,19 @@
+  <style>
+    .footer {
+      max-width: 1536px;
+      margin: 3rem auto 2rem;
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+
+    .footer p {
+      margin: 0.5rem 0;
+      font-size: 1rem;
+      opacity: 0.9;
+    }
+  </style>
+  <footer class="footer">
+    <p>&copy; <%= new Date().getFullYear() %> TCRS - Taiwan ClashRoyale Ranking System</p>
+    <p>Made with ❤️ by Xiang</p>
+    <span><% if (Pageviews != null) { %><i class='bx bx-show'></i><%=  Pageviews.map(c=>c.count) %>次瀏覽<% } %></span>
+  </footer>

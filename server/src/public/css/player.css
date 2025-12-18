@@ -316,20 +316,6 @@ table.dataTable tbody td a{
     }
 }
 
-/* Footer */
-.footer {
-    max-width: 1536px;
-    margin: 3rem auto 2rem;
-    padding: 2rem 1rem;
-    text-align: center;
-}
-
-.footer p {
-    margin: 0.5rem 0;
-    font-size: 1rem;
-    opacity: 0.9;
-}
-
 .joinus{
     display: block;
     margin-top: 1em;

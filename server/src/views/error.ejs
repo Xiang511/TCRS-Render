@@ -24,7 +24,7 @@
     .error-container {
       background: white;
       border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
       max-width: 600px;
       width: 100%;
       padding: 50px 40px;
@@ -65,7 +65,7 @@
     .error-code {
       font-size: 4rem;
       font-weight: bold;
-      color: #667eea;
+      color: red;
       margin-bottom: 10px;
     }
 
@@ -125,13 +125,8 @@
     }
 
     .btn-primary {
-        background: red;
+      background: red;
       color: white;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
     }
 
     .btn-secondary {
@@ -139,10 +134,6 @@
       color: #4a5568;
     }
 
-    .btn-secondary:hover {
-      background: #cbd5e0;
-      transform: translateY(-2px);
-    }
 
     /* RWD */
     @media (max-width: 480px) {
@@ -187,7 +178,8 @@
 
     <div class="error-code"><%= statusCode %></div>
     <h1 class="error-title"><%= title %></h1>
-    <p class="error-message"><%= message %></p>
+    <p class="error-message"><%= message %><a href="https://discord.gg/szSTDNxBM6">問題回報</a></p>
+    
 
     <% if (typeof error !== 'undefined' && error) { %>
     <div class="error-details">
@@ -197,7 +189,7 @@
     <% } %>
 
     <div class="btn-group">
-      <a href="/" class="btn btn-primary">🏠 返回首頁</a>
+      <a href="/" class="btn btn-primary">返回首頁</a>
       <button onclick="history.back()" class="btn btn-secondary">← 上一頁</button>
     </div>
   </div>

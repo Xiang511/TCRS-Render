@@ -46,25 +46,25 @@ router.get('/', optionalAuth, async function (req, res, next) {
       return playerObj;
     });
 
-      res.render('players', {
-        title: '生涯資料排行榜',
-        message: 'success',
-        players: players,
-        availableSeasons: availableSeasons,
-        currentSeason: time || '',
-        Pageviews: Pageviews,
-        user: req.user,
-        autochessTrophies: playersData.map(p => p.progress?.AutoChess_2025_Dec?.trophies || 0)
-      });
-    } catch (error) {
-      console.error('獲取玩家列表失敗:', error);
-      res.status(500).render('error', {
-        statusCode: 500,
-        title: '伺服器錯誤',
-        message: '系統發生錯誤，請稍後再試或聯繫管理員。'
-      });
-    }
-  });
+    res.render('players', {
+      title: '生涯資料排行榜',
+      message: 'success',
+      players: players,
+      availableSeasons: availableSeasons,
+      currentSeason: time || '',
+      Pageviews: Pageviews,
+      user: req.user,
+      autochessTrophies: playersData.map(p => p.progress?.AutoChess_2025_Dec?.trophies || 0)
+    });
+  } catch (error) {
+    console.error('獲取玩家列表失敗:', error);
+    res.status(500).render('error', {
+      statusCode: 500,
+      title: '伺服器錯誤',
+      message: '系統發生錯誤，請稍後再試或聯繫管理員。'
+    });
+  }
+});
 
 router.get('/leaderboard', optionalAuth, async function (req, res, next) {
   try {
@@ -230,7 +230,7 @@ router.get('/:tag', isAuth, async function (req, res, next) {
     }).sort({ time: -1 });
 
     playerHistory.sort((a, b) => new Date(b.time) - new Date(a.time)); // 按日期降序排列
-
+    const Pageviews = await pageviews.find({ path: `/players/${playerTag}` });
     // 如果找不到該玩家
     if (!playerHistory || playerHistory.length === 0) {
       return res.status(404).render('error', {
@@ -250,7 +250,8 @@ router.get('/:tag', isAuth, async function (req, res, next) {
       player: playerHistory[0], // 最新的記錄
       history: playerHistory, // 所有歷史記錄
       userdaysPlayed: userdaysPlayed,
-      user: req.user
+      user: req.user,
+      Pageviews: Pageviews
     });
   } catch (error) {
     console.error('獲取玩家詳情失敗:', error);
