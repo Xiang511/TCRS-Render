@@ -1,11 +1,11 @@
     .profile-container {
-        max-width: 1200px;
-        margin: 100px auto 50px;
+        max-width: 1536px;
+        margin: 2rem auto;
         padding: 20px;
     }
 
     .profile-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #764ba2;
         border-radius: 20px;
         padding: 40px;
         color: white;
@@ -28,7 +28,7 @@
         align-items: center;
         justify-content: center;
         font-size: 48px;
-        color: #667eea;
+        color: #764ba2;
         font-weight: bold;
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
     }

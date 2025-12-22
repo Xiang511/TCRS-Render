@@ -4,12 +4,9 @@ $(document).ready(function () {
         info: false,
         processing: true,
         colReorder: true,
-        colReorder: {
-            fixedColumnsLeft: 1
-        },
         fixedColumns: {
-            start: 1,
-            end: 2
+            start: 1, // 左側固定 1 欄
+            end: 2    // 右側固定 2 欄
         },
         scrollCollapse: true,
         language: {
@@ -26,21 +23,39 @@ $(document).ready(function () {
             zeroRecords: "沒有符合的資料"
         },
         initComplete: function () {
-            // DataTable 初始化完成後隱藏載入動畫和骨架屏
             $('#loadingOverlay').fadeOut(300);
             $('#skeletonScreen').fadeOut(300, function () {
                 $('#myTable').fadeIn(300);
             });
         }
     });
+
     table.on('order.dt search.dt', function () {
         table.column(0, { search: 'applied', order: 'applied' }).nodes().each(function (cell, i) {
             cell.innerHTML = i + 1;
         });
     }).draw();
-
-
 });
+
+// 多條件搜尋（DataTables 2.x 寫法）
+function multiSearch() {
+    let table = DataTable.instances[0]; // 取得第一個 DataTable 實例
+
+    $.fn.dataTable.ext.search.push(
+        function (settings, data, dataIndex) {
+            var name = data[0].toLowerCase();
+            var searchTerms = searchitem1.value.toLowerCase().split('+');
+            for (let subTerm of searchTerms) {
+                if (name.includes(subTerm.trim())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    );
+
+    table.draw();
+}
 
 //即時查詢總人數
 const firstSpan = document.querySelector('.sitestatesJs');
