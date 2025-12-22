@@ -1,0 +1,28 @@
+<div class="info-section">
+  <!-- 季度選擇器 -->
+  <div class="season-selector">
+    <label for="seasonSelect">選擇季度：</label>
+    <select id="seasonSelect">
+      <% availableSeasons.forEach(function(season) { %>
+      <option value="<%= season %>" <%= currentSeason === season ? 'selected' : '' %>>
+        <%= season %>
+      </option>
+      <% }); %>
+    </select>
+  </div>
+
+  <div>
+    <p class="info-text">
+      <% if (players.length > 0) { %>
+      更新時間: <%= players[0].time %> | 資料筆數: <%= players.length %>
+      <% } else { %>
+      目前沒有資料
+      <% } %>
+    </p>
+  </div>
+</div>
+
+<div class="compare-section">
+  <input id="searchitem1" type="text" placeholder="使用'+'來增加關鍵字 Ex: xiake+DANY">
+  <button class="btn" onclick="multiSearch()">比較</button>
+</div>

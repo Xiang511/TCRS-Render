@@ -29,121 +29,13 @@
 </head>
 
 <body>
- <%- include('layout/header') %>
+  <%- include('layout/header') %>
   <div class="container">
     <h1><%= title %> <img class="leaderboardTitleIcon" src="/img/battle.png" alt=""></h1>
 
-    <div class="info-section">
-      <!-- 季度選擇器 -->
-      <div class="season-selector">
-        <label for="seasonSelect">選擇季度：</label>
-        <select id="seasonSelect">
-          <% availableSeasons.forEach(function(season) { %>
-          <option value="<%= season %>" <%= currentSeason === season ? 'selected' : '' %>>
-            <%= season %>
-          </option>
-          <% }); %>
-        </select>
-      </div>
+    <%- include('layout/season-selector') %>
 
-      <div>
-        <p class="info-text">
-          <% if (players.length > 0) { %>
-          更新時間: <%= players[0].time %> | 資料筆數: <%= players.length %>
-          <% } else { %>
-          目前沒有資料
-          <% } %>
-        </p>
-      </div>
-    </div>
-
-    <div class="compare-section">
-      <input id="searchitem1" type="text" placeholder="使用'+'來增加關鍵字 Ex: xiake+DANY">
-      <button class="btn" onclick="multiSearch()">比較</button>
-    </div>
-
-
-    <!-- 載入覆蓋層 -->
-    <div id="loadingOverlay" class="loading-overlay">
-      <div class="loading-spinner">
-        <div class="spinner"></div>
-        <p class="loading-text">載入中...</p>
-      </div>
-    </div>
-
-    <!-- 骨架屏 -->
-    <div id="skeletonScreen" class="skeleton-screen">
-      <div class="skeleton-table">
-        <div class="skeleton-header">
-          <div class="skeleton-cell" style="width: 15%;"></div>
-          <div class="skeleton-cell" style="width: 8%;"></div>
-          <div class="skeleton-cell" style="width: 8%;"></div>
-          <div class="skeleton-cell" style="width: 8%;"></div>
-          <div class="skeleton-cell" style="width: 8%;"></div>
-          <div class="skeleton-cell" style="width: 8%;"></div>
-          <div class="skeleton-cell" style="width: 8%;"></div>
-          <div class="skeleton-cell" style="width: 8%;"></div>
-          <div class="skeleton-cell" style="width: 8%;"></div>
-        </div>
-        <div class="skeleton-body">
-          <div class="skeleton-row" style="animation-delay: 0s;">
-            <div class="skeleton-cell" style="width: 15%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-          </div>
-          <div class="skeleton-row" style="animation-delay: 0.1s;">
-            <div class="skeleton-cell" style="width: 15%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-          </div>
-          <div class="skeleton-row" style="animation-delay: 0.2s;">
-            <div class="skeleton-cell" style="width: 15%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-          </div>
-          <div class="skeleton-row" style="animation-delay: 0.3s;">
-            <div class="skeleton-cell" style="width: 15%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-          </div>
-          <div class="skeleton-row" style="animation-delay: 0.4s;">
-            <div class="skeleton-cell" style="width: 15%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <%- include('layout/loading') %>
 
 
     <!-- 顯示玩家列表 -->

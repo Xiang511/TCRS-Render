@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %></title>
   <link rel="stylesheet" href="/css/player.css">
-  <link rel="stylesheet" href="/css/nav.css">
   <link rel="shortcut icon" href="/img/path of legends icon.png" type="image/x-icon">
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
   <!-- jQUERY -->
@@ -17,10 +16,7 @@
 
   <script src="/js/DataTables/js/jquery.dataTables.min.js"></script>
 
-  <!-- fixed col -->
-  <link rel="stylesheet" href=https://cdn.datatables.net/fixedcolumns/4.3.0/css/fixedColumns.dataTables.min.css">
-  <script src="https://cdn.datatables.net/fixedcolumns/4.3.0/js/dataTables.fixedColumns.min.js"></script>
-  <!-- fixed col -->
+
 
   <!-- DataTables Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -36,117 +32,14 @@
 
 
 
-    <div class="info-section">
-      <!-- 季度選擇器 -->
-      <div class="season-selector">
-        <label for="seasonSelect">選擇季度：</label>
-        <select id="seasonSelect">
-          <% availableSeasons.forEach(function(season) { %>
-          <option value="<%= season %>" <%= currentSeason === season ? 'selected' : '' %>>
-            <%= season %>
-          </option>
-          <% }); %>
-        </select>
-      </div>
+    <%- include('layout/season-selector') %>
 
-      <div>
-        <p class="info-text">
-          <% if (players.length > 0) { %>
-          更新時間: <%= players[0].time %> | 資料筆數: <%= players.length %>
-          <% } else { %>
-          目前沒有資料
-          <% } %>
-        </p>
-      </div>
-    </div>
 
     <div class="compare-section">
       <input id="searchitem1" type="text" placeholder="使用'+'來增加關鍵字 Ex: xiake+DANY">
       <button class="btn" onclick="multiSearch()">比較</button>
     </div>
-
-
-    <!-- 載入覆蓋層 -->
-    <div id="loadingOverlay" class="loading-overlay">
-      <div class="loading-spinner">
-        <div class="spinner"></div>
-        <p class="loading-text">載入中...</p>
-      </div>
-    </div>
-
-    <!-- 骨架屏 -->
-    <div id="skeletonScreen" class="skeleton-screen">
-      <div class="skeleton-table">
-        <div class="skeleton-header">
-          <div class="skeleton-cell" style="width: 15%;"></div>
-          <div class="skeleton-cell" style="width: 8%;"></div>
-          <div class="skeleton-cell" style="width: 8%;"></div>
-          <div class="skeleton-cell" style="width: 8%;"></div>
-          <div class="skeleton-cell" style="width: 8%;"></div>
-          <div class="skeleton-cell" style="width: 8%;"></div>
-          <div class="skeleton-cell" style="width: 8%;"></div>
-          <div class="skeleton-cell" style="width: 8%;"></div>
-          <div class="skeleton-cell" style="width: 8%;"></div>
-        </div>
-        <div class="skeleton-body">
-          <div class="skeleton-row" style="animation-delay: 0s;">
-            <div class="skeleton-cell" style="width: 15%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-          </div>
-          <div class="skeleton-row" style="animation-delay: 0.1s;">
-            <div class="skeleton-cell" style="width: 15%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-          </div>
-          <div class="skeleton-row" style="animation-delay: 0.2s;">
-            <div class="skeleton-cell" style="width: 15%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-          </div>
-          <div class="skeleton-row" style="animation-delay: 0.3s;">
-            <div class="skeleton-cell" style="width: 15%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-          </div>
-          <div class="skeleton-row" style="animation-delay: 0.4s;">
-            <div class="skeleton-cell" style="width: 15%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-            <div class="skeleton-cell" style="width: 8%;"></div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <%- include('layout/loading') %>
 
 
     <!-- 顯示玩家列表 -->
@@ -155,8 +48,8 @@
         <tr>
           <th></th>
           <th>名稱</th>
-          <th>當前排名</th>
-          <th>當前杯數</th>
+          <!-- <th>當前排名</th>
+          <th>當前杯數</th> -->
           <th>最佳排名</th>
           <th>最佳杯數</th>
           <th>上季排名</th>
@@ -169,8 +62,8 @@
         <tr>
           <th></th>
           <td><a href="/players/<%= player.tag.substring(1) %>"><%= player.name %></a> </td>
-          <td><%= player.currentPathOfLegendSeasonResult.rank || 10000 %></td>
-          <td><%= player.currentPathOfLegendSeasonResult.trophies || 0 %></td>
+          <!-- <td><%= player.currentPathOfLegendSeasonResult.rank || 10000 %></td>
+          <td><%= player.currentPathOfLegendSeasonResult.trophies || 0 %></td> -->
           <td><%= player.bestPathOfLegendSeasonResult.rank || 10000 %></td>
           <td><%= player.bestPathOfLegendSeasonResult.trophies || 0 %></td>
           <td><%= player.lastPathOfLegendSeasonResult.rank || 10000 %></td>
